@@ -1,6 +1,0 @@
-2026-03-05 12:32:15.036181-05:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
-SELECT username, password FROM users WHERE username = 'admin' [42104-232]
-2026-03-05 15:47:05.236373-05:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "DATABASECHANGELOGLOCK" not found; SQL statement:
-SELECT COUNT(*) FROM PUBLIC.DATABASECHANGELOGLOCK [42102-232]
