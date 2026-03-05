@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.mobileapp.backend.service</a> &gt; <span class="el_source">AuthService.java</span></div><h1>AuthService.java</h1><pre class="source lang-java linenums">package com.mobileapp.backend.service;
+
+import com.mobileapp.backend.dto.AuthResponse;
+import com.mobileapp.backend.dto.LoginRequest;
+import com.mobileapp.backend.dto.RegisterRequest;
+import com.mobileapp.backend.entity.Role;
+import com.mobileapp.backend.entity.Role.RoleName;
+import com.mobileapp.backend.entity.User;
+import com.mobileapp.backend.entity.VerificationToken;
+import com.mobileapp.backend.repository.RoleRepository;
+import com.mobileapp.backend.repository.UserRepository;
+import com.mobileapp.backend.repository.VerificationTokenRepository;
+import com.mobileapp.backend.security.JwtTokenProvider;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.Set;
+
+@Service
+public class AuthService {
+
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final VerificationTokenRepository tokenRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final EmailService emailService;
+
+    public AuthService(UserRepository userRepository,
+                       RoleRepository roleRepository,
+                       VerificationTokenRepository tokenRepository,
+                       PasswordEncoder passwordEncoder,
+                       AuthenticationManager authenticationManager,
+                       JwtTokenProvider jwtTokenProvider,
+<span class="fc" id="L41">                       EmailService emailService) {</span>
+<span class="fc" id="L42">        this.userRepository = userRepository;</span>
+<span class="fc" id="L43">        this.roleRepository = roleRepository;</span>
+<span class="fc" id="L44">        this.tokenRepository = tokenRepository;</span>
+<span class="fc" id="L45">        this.passwordEncoder = passwordEncoder;</span>
+<span class="fc" id="L46">        this.authenticationManager = authenticationManager;</span>
+<span class="fc" id="L47">        this.jwtTokenProvider = jwtTokenProvider;</span>
+<span class="fc" id="L48">        this.emailService = emailService;</span>
+<span class="fc" id="L49">    }</span>
+
+    @Transactional
+    public String register(RegisterRequest request) {
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (userRepository.existsByUsername(request.getUsername())) {</span>
+<span class="fc" id="L54">            throw new IllegalArgumentException(&quot;Username is already taken&quot;);</span>
+        }
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        if (userRepository.existsByEmail(request.getEmail())) {</span>
+<span class="fc" id="L57">            throw new IllegalArgumentException(&quot;Email is already registered&quot;);</span>
+        }
+
+        // Create user with hashed password (BCrypt includes salt automatically)
+<span class="fc" id="L61">        User user = new User(</span>
+<span class="fc" id="L62">                request.getUsername(),</span>
+<span class="fc" id="L63">                request.getEmail(),</span>
+<span class="fc" id="L64">                passwordEncoder.encode(request.getPassword()),</span>
+<span class="fc" id="L65">                request.getFirstName(),</span>
+<span class="fc" id="L66">                request.getLastName()</span>
+        );
+
+<span class="fc" id="L69">        Role userRole = roleRepository.findByName(RoleName.ROLE_USER)</span>
+<span class="fc" id="L70">                .orElseThrow(() -&gt; new RuntimeException(&quot;Default role not found&quot;));</span>
+<span class="fc" id="L71">        user.setRoles(new HashSet&lt;&gt;(Set.of(userRole)));</span>
+<span class="fc" id="L72">        user.setEnabled(false); // Disabled until email verification</span>
+
+<span class="fc" id="L74">        userRepository.save(user);</span>
+
+        // Create and send verification token
+<span class="fc" id="L77">        VerificationToken verificationToken = new VerificationToken(user);</span>
+<span class="fc" id="L78">        tokenRepository.save(verificationToken);</span>
+<span class="fc" id="L79">        emailService.sendVerificationEmail(user, verificationToken);</span>
+
+<span class="fc" id="L81">        return &quot;Registration successful. Please check your email to verify your account.&quot;;</span>
+    }
+
+    @Transactional
+    public String verifyEmail(String token) {
+<span class="fc" id="L86">        VerificationToken verificationToken = tokenRepository.findByToken(token)</span>
+<span class="fc" id="L87">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Invalid verification token&quot;));</span>
+
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        if (verificationToken.isExpired()) {</span>
+<span class="fc" id="L90">            tokenRepository.delete(verificationToken);</span>
+<span class="fc" id="L91">            throw new IllegalArgumentException(</span>
+                    &quot;Verification token has expired. Please register again.&quot;);
+        }
+
+<span class="fc" id="L95">        User user = verificationToken.getUser();</span>
+<span class="fc" id="L96">        user.setEnabled(true);</span>
+<span class="fc" id="L97">        userRepository.save(user);</span>
+<span class="fc" id="L98">        tokenRepository.delete(verificationToken);</span>
+
+<span class="fc" id="L100">        return &quot;Email verified successfully. You can now log in.&quot;;</span>
+    }
+
+    public AuthResponse login(LoginRequest request) {
+<span class="fc" id="L104">        Authentication authentication = authenticationManager.authenticate(</span>
+                new UsernamePasswordAuthenticationToken(
+<span class="fc" id="L106">                        request.getUsername(),</span>
+<span class="fc" id="L107">                        request.getPassword()</span>
+                )
+        );
+
+<span class="fc" id="L111">        String jwt = jwtTokenProvider.generateToken(authentication);</span>
+
+<span class="fc" id="L113">        User user = userRepository.findByUsername(request.getUsername())</span>
+<span class="pc" id="L114">                .orElseThrow(() -&gt; new RuntimeException(&quot;User not found&quot;));</span>
+
+<span class="fc" id="L116">        var roles = user.getRoles().stream()</span>
+<span class="fc" id="L117">                .map(role -&gt; role.getName().name())</span>
+<span class="fc" id="L118">                .toList();</span>
+
+<span class="fc" id="L120">        return new AuthResponse(jwt, user.getUsername(), user.getEmail(),</span>
+<span class="fc" id="L121">                user.getFirstName(), user.getLastName(), roles);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

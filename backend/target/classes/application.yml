@@ -1,0 +1,68 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: mobile-app-backend
+
+  # ─── Database (H2 for development) ───────────────────────────────
+  datasource:
+    url: jdbc:h2:file:./data/mobileapp;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+
+  # ─── Liquibase (schema & seed management) ──────────────────────
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+
+  # ─── Mail (configure with your SMTP provider) ───────────────────
+  # For development, you can use MailHog (localhost:1025) or Mailtrap.
+  # In production, use a real SMTP server (Gmail, SendGrid, etc.).
+  mail:
+    host: localhost
+    port: 1025
+    username: noreply@mobileapp.com
+    password: ""
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+# ─── Application Settings ──────────────────────────────────────────
+app:
+  base-url: http://localhost:8080
+
+  jwt:
+    # Base64-encoded 512-bit secret key (CHANGE IN PRODUCTION!)
+    # Generate your own with: openssl rand -base64 64
+    secret: dGhpcyBpcyBhIHZlcnkgbG9uZyBzZWNyZXQga2V5IGZvciBKV1QgdG9rZW4gc2lnbmluZyB0aGF0IGlzIGF0IGxlYXN0IDUxMiBiaXRzIGxvbmc=
+    expiration-ms: 86400000  # 24 hours
+
+  admin:
+    username: admin
+    password: admin
+    email: admin@mobileapp.com
+
+# ─── Logging ───────────────────────────────────────────────────────
+logging:
+  level:
+    com.mobileapp.backend: DEBUG
+    org.springframework.security: INFO

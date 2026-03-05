@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminInitializer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.mobileapp.backend.config</a> &gt; <span class="el_source">AdminInitializer.java</span></div><h1>AdminInitializer.java</h1><pre class="source lang-java linenums">package com.mobileapp.backend.config;
+
+import com.mobileapp.backend.entity.Role;
+import com.mobileapp.backend.entity.Role.RoleName;
+import com.mobileapp.backend.entity.User;
+import com.mobileapp.backend.repository.RoleRepository;
+import com.mobileapp.backend.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+
+import java.util.Set;
+
+/**
+ * Seeds the admin user on first startup.
+ * &lt;p&gt;
+ * Roles are managed by Liquibase (005-seed-roles.yaml).
+ * The admin user is created here at runtime because BCrypt
+ * generates a unique random salt each time the password is hashed.
+ */
+@Component
+public class AdminInitializer implements CommandLineRunner {
+
+<span class="fc" id="L27">    private static final Logger logger = LoggerFactory.getLogger(AdminInitializer.class);</span>
+
+    private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    @Value(&quot;${app.admin.username:admin}&quot;)
+    private String adminUsername;
+
+    @Value(&quot;${app.admin.password:Admin@123}&quot;)
+    private String adminPassword;
+
+    @Value(&quot;${app.admin.email:admin@mobileapp.com}&quot;)
+    private String adminEmail;
+
+    public AdminInitializer(RoleRepository roleRepository,
+                            UserRepository userRepository,
+<span class="fc" id="L44">                            PasswordEncoder passwordEncoder) {</span>
+<span class="fc" id="L45">        this.roleRepository = roleRepository;</span>
+<span class="fc" id="L46">        this.userRepository = userRepository;</span>
+<span class="fc" id="L47">        this.passwordEncoder = passwordEncoder;</span>
+<span class="fc" id="L48">    }</span>
+
+    @Override
+    public void run(String... args) {
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (userRepository.existsByUsername(adminUsername)) {</span>
+<span class="fc" id="L53">            User existing = userRepository.findByUsername(adminUsername).get();</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">            if (!passwordEncoder.matches(adminPassword, existing.getPassword())) {</span>
+<span class="fc" id="L55">                existing.setPassword(passwordEncoder.encode(adminPassword));</span>
+<span class="fc" id="L56">                userRepository.save(existing);</span>
+<span class="fc" id="L57">                logger.info(&quot;Admin user '{}' password updated.&quot;, adminUsername);</span>
+            } else {
+<span class="fc" id="L59">                logger.info(&quot;Admin user '{}' already exists, skipping.&quot;, adminUsername);</span>
+            }
+<span class="fc" id="L61">            return;</span>
+        }
+
+<span class="fc" id="L64">        Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN)</span>
+<span class="fc" id="L65">                .orElseThrow(() -&gt; new RuntimeException(</span>
+                        &quot;ROLE_ADMIN not found — ensure Liquibase seed changeset has run&quot;));
+<span class="fc" id="L67">        Role userRole = roleRepository.findByName(RoleName.ROLE_USER)</span>
+<span class="pc" id="L68">                .orElseThrow(() -&gt; new RuntimeException(</span>
+                        &quot;ROLE_USER not found — ensure Liquibase seed changeset has run&quot;));
+
+<span class="fc" id="L71">        User admin = new User(</span>
+                adminUsername,
+                adminEmail,
+<span class="fc" id="L74">                passwordEncoder.encode(adminPassword),</span>
+                &quot;System&quot;,
+                &quot;Administrator&quot;
+        );
+<span class="fc" id="L78">        admin.setEnabled(true);</span>
+<span class="fc" id="L79">        admin.setRoles(Set.of(adminRole, userRole));</span>
+<span class="fc" id="L80">        userRepository.save(admin);</span>
+
+<span class="fc" id="L82">        logger.info(&quot;Admin user created: username='{}', email='{}'&quot;,</span>
+                adminUsername, adminEmail);
+<span class="fc" id="L84">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

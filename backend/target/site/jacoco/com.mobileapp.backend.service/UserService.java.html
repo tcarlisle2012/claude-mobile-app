@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.mobileapp.backend.service</a> &gt; <span class="el_source">UserService.java</span></div><h1>UserService.java</h1><pre class="source lang-java linenums">package com.mobileapp.backend.service;
+
+import com.mobileapp.backend.dto.UpdateUserRequest;
+import com.mobileapp.backend.dto.UserDto;
+import com.mobileapp.backend.dto.VerificationTokenDto;
+import com.mobileapp.backend.entity.User;
+import com.mobileapp.backend.entity.VerificationToken;
+import com.mobileapp.backend.repository.UserRepository;
+import com.mobileapp.backend.repository.VerificationTokenRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+public class UserService {
+
+    private final UserRepository userRepository;
+    private final VerificationTokenRepository tokenRepository;
+    private final EmailService emailService;
+
+    public UserService(UserRepository userRepository,
+                       VerificationTokenRepository tokenRepository,
+<span class="fc" id="L24">                       EmailService emailService) {</span>
+<span class="fc" id="L25">        this.userRepository = userRepository;</span>
+<span class="fc" id="L26">        this.tokenRepository = tokenRepository;</span>
+<span class="fc" id="L27">        this.emailService = emailService;</span>
+<span class="fc" id="L28">    }</span>
+
+    public List&lt;UserDto&gt; getAllUsers() {
+<span class="fc" id="L31">        return userRepository.findAll().stream()</span>
+<span class="fc" id="L32">                .map(UserDto::fromEntity)</span>
+<span class="fc" id="L33">                .toList();</span>
+    }
+
+    public UserDto getUserById(Long id) {
+<span class="fc" id="L37">        User user = userRepository.findById(id)</span>
+<span class="fc" id="L38">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;User not found with id: &quot; + id));</span>
+<span class="fc" id="L39">        return UserDto.fromEntity(user);</span>
+    }
+
+    @Transactional
+    public UserDto updateUser(Long id, UpdateUserRequest request) {
+<span class="fc" id="L44">        User user = userRepository.findById(id)</span>
+<span class="fc" id="L45">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;User not found with id: &quot; + id));</span>
+
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        if (!user.getEmail().equals(request.getEmail())</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">                &amp;&amp; userRepository.existsByEmail(request.getEmail())) {</span>
+<span class="fc" id="L49">            throw new IllegalArgumentException(&quot;Email is already registered&quot;);</span>
+        }
+
+<span class="fc" id="L52">        user.setFirstName(request.getFirstName());</span>
+<span class="fc" id="L53">        user.setLastName(request.getLastName());</span>
+<span class="fc" id="L54">        user.setEmail(request.getEmail());</span>
+<span class="fc" id="L55">        userRepository.save(user);</span>
+<span class="fc" id="L56">        return UserDto.fromEntity(user);</span>
+    }
+
+    @Transactional
+    public UserDto toggleUserEnabled(Long id) {
+<span class="fc" id="L61">        User user = userRepository.findById(id)</span>
+<span class="fc" id="L62">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;User not found with id: &quot; + id));</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        user.setEnabled(!user.isEnabled());</span>
+<span class="fc" id="L64">        userRepository.save(user);</span>
+<span class="fc" id="L65">        return UserDto.fromEntity(user);</span>
+    }
+
+    @Transactional
+    public UserDto toggleUserLocked(Long id) {
+<span class="fc" id="L70">        User user = userRepository.findById(id)</span>
+<span class="fc" id="L71">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;User not found with id: &quot; + id));</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        user.setAccountNonLocked(!user.isAccountNonLocked());</span>
+<span class="fc" id="L73">        userRepository.save(user);</span>
+<span class="fc" id="L74">        return UserDto.fromEntity(user);</span>
+    }
+
+    @Transactional
+    public void deleteUser(Long id) {
+<span class="fc" id="L79">        User user = userRepository.findById(id)</span>
+<span class="fc" id="L80">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;User not found with id: &quot; + id));</span>
+<span class="fc" id="L81">        tokenRepository.findByUserId(user.getId()).ifPresent(tokenRepository::delete);</span>
+<span class="fc" id="L82">        tokenRepository.flush();</span>
+<span class="fc" id="L83">        userRepository.delete(user);</span>
+<span class="fc" id="L84">    }</span>
+
+    public VerificationTokenDto getVerificationToken(Long userId) {
+<span class="fc" id="L87">        userRepository.findById(userId)</span>
+<span class="fc" id="L88">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;User not found with id: &quot; + userId));</span>
+
+<span class="fc" id="L90">        return tokenRepository.findByUserId(userId)</span>
+<span class="fc" id="L91">                .map(VerificationTokenDto::fromEntity)</span>
+<span class="fc" id="L92">                .orElse(null);</span>
+    }
+
+    @Transactional
+    public void deleteVerificationToken(Long userId) {
+<span class="fc" id="L97">        userRepository.findById(userId)</span>
+<span class="fc" id="L98">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;User not found with id: &quot; + userId));</span>
+<span class="fc" id="L99">        tokenRepository.findByUserId(userId).ifPresent(tokenRepository::delete);</span>
+<span class="fc" id="L100">    }</span>
+
+    @Transactional
+    public VerificationTokenDto regenerateVerificationToken(Long userId) {
+<span class="fc" id="L104">        User user = userRepository.findById(userId)</span>
+<span class="fc" id="L105">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;User not found with id: &quot; + userId));</span>
+
+<span class="fc" id="L107">        tokenRepository.findByUserId(userId).ifPresent(tokenRepository::delete);</span>
+<span class="fc" id="L108">        tokenRepository.flush();</span>
+
+<span class="fc" id="L110">        VerificationToken newToken = new VerificationToken(user);</span>
+<span class="fc" id="L111">        tokenRepository.save(newToken);</span>
+<span class="fc" id="L112">        emailService.sendVerificationEmail(user, newToken);</span>
+
+<span class="fc" id="L114">        return VerificationTokenDto.fromEntity(newToken);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
