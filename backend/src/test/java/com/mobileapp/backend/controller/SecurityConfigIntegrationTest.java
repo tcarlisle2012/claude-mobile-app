@@ -18,6 +18,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Locale;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -48,7 +50,7 @@ class SecurityConfigIntegrationTest {
         registerRequest.setFirstName("Sec");
         registerRequest.setLastName("Test");
 
-        doNothing().when(emailService).sendVerificationEmail(any(), any());
+        doNothing().when(emailService).sendVerificationEmail(any(), any(), any(Locale.class));
 
         // Register should return 201, not 401
         mockMvc.perform(post("/api/auth/register")
@@ -82,7 +84,7 @@ class SecurityConfigIntegrationTest {
 
     @Test
     void adminEndpoints_return403_for_regularUser() throws Exception {
-        doNothing().when(emailService).sendVerificationEmail(any(), any());
+        doNothing().when(emailService).sendVerificationEmail(any(), any(), any(Locale.class));
 
         // Register and verify a regular user
         RegisterRequest request = new RegisterRequest();
@@ -97,7 +99,7 @@ class SecurityConfigIntegrationTest {
                 .content(objectMapper.writeValueAsString(request)));
 
         ArgumentCaptor<VerificationToken> captor = ArgumentCaptor.forClass(VerificationToken.class);
-        verify(emailService).sendVerificationEmail(any(User.class), captor.capture());
+        verify(emailService).sendVerificationEmail(any(User.class), captor.capture(), any(Locale.class));
 
         mockMvc.perform(get("/api/auth/verify")
                 .param("token", captor.getValue().getToken()));

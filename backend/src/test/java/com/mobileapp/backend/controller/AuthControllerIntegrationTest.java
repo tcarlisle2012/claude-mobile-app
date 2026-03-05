@@ -19,6 +19,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Locale;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
@@ -50,7 +52,7 @@ class AuthControllerIntegrationTest {
     }
 
     private void registerUser(RegisterRequest request) throws Exception {
-        doNothing().when(emailService).sendVerificationEmail(any(), any());
+        doNothing().when(emailService).sendVerificationEmail(any(), any(), any(Locale.class));
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -60,7 +62,7 @@ class AuthControllerIntegrationTest {
 
     private String getVerificationToken() {
         ArgumentCaptor<VerificationToken> captor = ArgumentCaptor.forClass(VerificationToken.class);
-        verify(emailService).sendVerificationEmail(any(User.class), captor.capture());
+        verify(emailService).sendVerificationEmail(any(User.class), captor.capture(), any(Locale.class));
         return captor.getValue().getToken();
     }
 

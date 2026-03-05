@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { getErrorMessage } from '../services/api';
@@ -23,6 +24,7 @@ type Props = {
 export default function LoginScreen({ navigation }: Props) {
   const { colors } = useTheme();
   const { login } = useAuth();
+  const { t } = useTranslation();
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -33,7 +35,7 @@ export default function LoginScreen({ navigation }: Props) {
   const handleLogin = async () => {
     setError('');
     if (!username.trim() || !password.trim()) {
-      setError('Please enter both username and password.');
+      setError(t('login.emptyFieldsError'));
       return;
     }
 
@@ -41,7 +43,7 @@ export default function LoginScreen({ navigation }: Props) {
     try {
       await login(username.trim(), password);
     } catch (err: unknown) {
-      setError(getErrorMessage(err) || 'Login failed. Please try again.');
+      setError(getErrorMessage(err) || t('login.fallbackError'));
     } finally {
       setLoading(false);
     }
@@ -60,9 +62,9 @@ export default function LoginScreen({ navigation }: Props) {
           <View style={[styles.iconContainer, { backgroundColor: colors.primaryLight }]}>
             <Ionicons name="lock-closed-outline" size={32} color={colors.primary} />
           </View>
-          <Text style={[styles.title, { color: colors.text }]}>Welcome Back</Text>
+          <Text style={[styles.title, { color: colors.text }]}>{t('login.title')}</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            Sign in to your account
+            {t('login.subtitle')}
           </Text>
         </View>
 
@@ -75,12 +77,12 @@ export default function LoginScreen({ navigation }: Props) {
 
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.textSecondary }]}>Username</Text>
+            <Text style={[styles.label, { color: colors.textSecondary }]}>{t('login.usernameLabel')}</Text>
             <View style={[styles.inputRow, { borderColor: colors.border }]}>
               <Ionicons name="person-outline" size={18} color={colors.icon} style={styles.inputIcon} />
               <TextInput
                 style={[styles.input, { color: colors.text }]}
-                placeholder="Enter your username"
+                placeholder={t('login.usernamePlaceholder')}
                 placeholderTextColor={colors.textSecondary}
                 value={username}
                 onChangeText={setUsername}
@@ -91,12 +93,12 @@ export default function LoginScreen({ navigation }: Props) {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.textSecondary }]}>Password</Text>
+            <Text style={[styles.label, { color: colors.textSecondary }]}>{t('login.passwordLabel')}</Text>
             <View style={[styles.inputRow, { borderColor: colors.border }]}>
               <Ionicons name="lock-closed-outline" size={18} color={colors.icon} style={styles.inputIcon} />
               <TextInput
                 style={[styles.input, { color: colors.text }]}
-                placeholder="Enter your password"
+                placeholder={t('login.passwordPlaceholder')}
                 placeholderTextColor={colors.textSecondary}
                 value={password}
                 onChangeText={setPassword}
@@ -123,17 +125,17 @@ export default function LoginScreen({ navigation }: Props) {
             {loading ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text style={styles.buttonText}>Sign In</Text>
+              <Text style={styles.buttonText}>{t('login.submitButton')}</Text>
             )}
           </TouchableOpacity>
         </View>
 
         <View style={styles.footer}>
           <Text style={[styles.footerText, { color: colors.textSecondary }]}>
-            Don't have an account?{' '}
+            {t('login.noAccount')}
           </Text>
           <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-            <Text style={[styles.footerLink, { color: colors.primary }]}>Sign Up</Text>
+            <Text style={[styles.footerLink, { color: colors.primary }]}>{t('login.signUpLink')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

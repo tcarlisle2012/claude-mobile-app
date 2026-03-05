@@ -10,6 +10,7 @@ import {
   DrawerContentComponentProps,
 } from '@react-navigation/drawer';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -18,6 +19,7 @@ export default function CustomDrawerContent(
 ) {
   const { colors, isDark } = useTheme();
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
   const currentRoute =
     props.state.routes[props.state.index]?.name ?? 'Home';
 
@@ -28,10 +30,10 @@ export default function CustomDrawerContent(
     route: string;
     icon: keyof typeof Ionicons.glyphMap;
   }[] = [
-    { label: 'Home', route: 'Home', icon: 'home-outline' },
-    { label: 'Settings', route: 'Settings', icon: 'settings-outline' },
+    { label: t('drawer.home'), route: 'Home', icon: 'home-outline' },
+    { label: t('drawer.settings'), route: 'Settings', icon: 'settings-outline' },
     ...(isAdmin
-      ? [{ label: 'Users', route: 'Users', icon: 'people-outline' as keyof typeof Ionicons.glyphMap }]
+      ? [{ label: t('drawer.users'), route: 'Users', icon: 'people-outline' as keyof typeof Ionicons.glyphMap }]
       : []),
   ];
 
@@ -54,10 +56,10 @@ export default function CustomDrawerContent(
           </Text>
         </View>
         <Text style={[styles.userName, { color: colors.text }]}>
-          {user ? `${user.firstName} ${user.lastName}` : 'My App'}
+          {user ? `${user.firstName} ${user.lastName}` : t('common.appName')}
         </Text>
         <Text style={[styles.userEmail, { color: colors.textSecondary }]}>
-          {user?.email ?? 'v1.0.0'}
+          {user?.email ?? t('common.version')}
         </Text>
       </View>
 
@@ -104,7 +106,7 @@ export default function CustomDrawerContent(
           activeOpacity={0.6}
         >
           <Ionicons name="log-out-outline" size={22} color="#DC2626" />
-          <Text style={styles.logoutLabel}>Sign Out</Text>
+          <Text style={styles.logoutLabel}>{t('drawer.signOut')}</Text>
         </TouchableOpacity>
       </View>
     </DrawerContentScrollView>

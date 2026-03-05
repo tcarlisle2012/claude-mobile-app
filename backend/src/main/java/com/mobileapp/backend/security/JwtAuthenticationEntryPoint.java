@@ -3,6 +3,7 @@ package com.mobileapp.backend.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -15,6 +16,11 @@ import java.util.Map;
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final MessageSource messageSource;
+
+    public JwtAuthenticationEntryPoint(MessageSource messageSource) {
+        this.messageSource = messageSource;
+    }
 
     @Override
     public void commence(HttpServletRequest request,
@@ -23,9 +29,12 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
+        String errorLabel = messageSource.getMessage(
+                "auth.error.unauthorized", null, "Unauthorized", request.getLocale());
+
         Map<String, Object> body = Map.of(
                 "status", HttpServletResponse.SC_UNAUTHORIZED,
-                "error", "Unauthorized",
+                "error", errorLabel,
                 "message", authException.getMessage(),
                 "path", request.getServletPath()
         );

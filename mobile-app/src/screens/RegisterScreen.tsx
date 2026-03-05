@@ -12,6 +12,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { getErrorMessage, getFieldErrors } from '../services/api';
@@ -27,6 +28,7 @@ type FormState = Record<FormFields, string>;
 export default function RegisterScreen({ navigation }: Props) {
   const { colors } = useTheme();
   const { register } = useAuth();
+  const { t } = useTranslation();
 
   const [form, setForm] = useState<FormState>({
     firstName: '',
@@ -53,14 +55,14 @@ export default function RegisterScreen({ navigation }: Props) {
 
   const validate = (): boolean => {
     const errors: Record<string, string> = {};
-    if (!form.firstName.trim()) errors.firstName = 'First name is required';
-    if (!form.lastName.trim()) errors.lastName = 'Last name is required';
-    if (!form.username.trim()) errors.username = 'Username is required';
-    else if (form.username.trim().length < 3) errors.username = 'Username must be at least 3 characters';
-    if (!form.email.trim()) errors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(form.email.trim())) errors.email = 'Please enter a valid email';
-    if (!form.password) errors.password = 'Password is required';
-    else if (form.password.length < 8) errors.password = 'Password must be at least 8 characters';
+    if (!form.firstName.trim()) errors.firstName = t('register.validation.firstNameRequired');
+    if (!form.lastName.trim()) errors.lastName = t('register.validation.lastNameRequired');
+    if (!form.username.trim()) errors.username = t('register.validation.usernameRequired');
+    else if (form.username.trim().length < 3) errors.username = t('register.validation.usernameMinLength');
+    if (!form.email.trim()) errors.email = t('register.validation.emailRequired');
+    else if (!/\S+@\S+\.\S+/.test(form.email.trim())) errors.email = t('register.validation.emailInvalid');
+    if (!form.password) errors.password = t('register.validation.passwordRequired');
+    else if (form.password.length < 8) errors.password = t('register.validation.passwordMinLength');
 
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
@@ -79,15 +81,15 @@ export default function RegisterScreen({ navigation }: Props) {
         email: form.email.trim(),
         password: form.password,
       });
-      Alert.alert('Registration Successful', message, [
-        { text: 'Sign In', onPress: () => navigation.navigate('Login') },
+      Alert.alert(t('register.successTitle'), message, [
+        { text: t('register.signInLink'), onPress: () => navigation.navigate('Login') },
       ]);
     } catch (err: unknown) {
       const fieldErrs = getFieldErrors(err);
       if (fieldErrs) {
         setFieldErrors(fieldErrs);
       }
-      setError(getErrorMessage(err) || 'Registration failed. Please try again.');
+      setError(getErrorMessage(err) || t('register.fallbackError'));
     } finally {
       setLoading(false);
     }
@@ -102,11 +104,11 @@ export default function RegisterScreen({ navigation }: Props) {
     keyboardType?: 'default' | 'email-address';
     secure?: boolean;
   }[] = [
-    { key: 'firstName', label: 'First Name', icon: 'person-outline', placeholder: 'John', autoCapitalize: 'words' },
-    { key: 'lastName', label: 'Last Name', icon: 'person-outline', placeholder: 'Doe', autoCapitalize: 'words' },
-    { key: 'username', label: 'Username', icon: 'at-outline', placeholder: 'john_doe', autoCapitalize: 'none' },
-    { key: 'email', label: 'Email', icon: 'mail-outline', placeholder: 'john@example.com', autoCapitalize: 'none', keyboardType: 'email-address' },
-    { key: 'password', label: 'Password', icon: 'lock-closed-outline', placeholder: 'Min. 8 characters', secure: true },
+    { key: 'firstName', label: t('register.firstNameLabel'), icon: 'person-outline', placeholder: t('register.firstNamePlaceholder'), autoCapitalize: 'words' },
+    { key: 'lastName', label: t('register.lastNameLabel'), icon: 'person-outline', placeholder: t('register.lastNamePlaceholder'), autoCapitalize: 'words' },
+    { key: 'username', label: t('register.usernameLabel'), icon: 'at-outline', placeholder: t('register.usernamePlaceholder'), autoCapitalize: 'none' },
+    { key: 'email', label: t('register.emailLabel'), icon: 'mail-outline', placeholder: t('register.emailPlaceholder'), autoCapitalize: 'none', keyboardType: 'email-address' },
+    { key: 'password', label: t('register.passwordLabel'), icon: 'lock-closed-outline', placeholder: t('register.passwordPlaceholder'), secure: true },
   ];
 
   return (
@@ -122,9 +124,9 @@ export default function RegisterScreen({ navigation }: Props) {
           <View style={[styles.iconContainer, { backgroundColor: colors.primaryLight }]}>
             <Ionicons name="person-add-outline" size={32} color={colors.primary} />
           </View>
-          <Text style={[styles.title, { color: colors.text }]}>Create Account</Text>
+          <Text style={[styles.title, { color: colors.text }]}>{t('register.title')}</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            Sign up to get started
+            {t('register.subtitle')}
           </Text>
         </View>
 
@@ -182,17 +184,17 @@ export default function RegisterScreen({ navigation }: Props) {
             {loading ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text style={styles.buttonText}>Create Account</Text>
+              <Text style={styles.buttonText}>{t('register.submitButton')}</Text>
             )}
           </TouchableOpacity>
         </View>
 
         <View style={styles.footer}>
           <Text style={[styles.footerText, { color: colors.textSecondary }]}>
-            Already have an account?{' '}
+            {t('register.hasAccount')}
           </Text>
           <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-            <Text style={[styles.footerLink, { color: colors.primary }]}>Sign In</Text>
+            <Text style={[styles.footerLink, { color: colors.primary }]}>{t('register.signInLink')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

@@ -4,6 +4,7 @@ import com.mobileapp.backend.dto.UserDto;
 import com.mobileapp.backend.entity.User;
 import com.mobileapp.backend.exception.ResourceNotFoundException;
 import com.mobileapp.backend.repository.UserRepository;
+import com.mobileapp.backend.util.Messages;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,16 +17,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final Messages messages;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, Messages messages) {
         this.userRepository = userRepository;
+        this.messages = messages;
     }
 
     @GetMapping("/me")
     public ResponseEntity<UserDto> getCurrentUser(
             @AuthenticationPrincipal UserDetails userDetails) {
         User user = userRepository.findByUsername(userDetails.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("user.error.not-found")));
         return ResponseEntity.ok(UserDto.fromEntity(user));
     }
 }

@@ -5,6 +5,7 @@ import com.mobileapp.backend.dto.UpdateUserRequest;
 import com.mobileapp.backend.dto.UserDto;
 import com.mobileapp.backend.dto.VerificationTokenDto;
 import com.mobileapp.backend.service.UserService;
+import com.mobileapp.backend.util.Messages;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,9 +19,11 @@ import java.util.List;
 public class AdminController {
 
     private final UserService userService;
+    private final Messages messages;
 
-    public AdminController(UserService userService) {
+    public AdminController(UserService userService, Messages messages) {
         this.userService = userService;
+        this.messages = messages;
     }
 
     @GetMapping("/users")
@@ -53,14 +56,14 @@ public class AdminController {
     @DeleteMapping("/users/{id}")
     public ResponseEntity<ApiResponse> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
-        return ResponseEntity.ok(ApiResponse.success("User deleted successfully"));
+        return ResponseEntity.ok(ApiResponse.success(messages.get("admin.success.user-deleted")));
     }
 
     @GetMapping("/users/{id}/token")
     public ResponseEntity<Object> getVerificationToken(@PathVariable Long id) {
         VerificationTokenDto token = userService.getVerificationToken(id);
         if (token == null) {
-            return ResponseEntity.ok(ApiResponse.success("No verification token exists for this user"));
+            return ResponseEntity.ok(ApiResponse.success(messages.get("admin.info.no-token")));
         }
         return ResponseEntity.ok(token);
     }
@@ -68,7 +71,7 @@ public class AdminController {
     @DeleteMapping("/users/{id}/token")
     public ResponseEntity<ApiResponse> deleteVerificationToken(@PathVariable Long id) {
         userService.deleteVerificationToken(id);
-        return ResponseEntity.ok(ApiResponse.success("Verification token deleted successfully"));
+        return ResponseEntity.ok(ApiResponse.success(messages.get("admin.success.token-deleted")));
     }
 
     @PostMapping("/users/{id}/token")

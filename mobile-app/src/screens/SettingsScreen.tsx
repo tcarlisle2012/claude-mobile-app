@@ -1,19 +1,22 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
+import { changeLanguage, LANGUAGES, getCurrentLanguage } from '../i18n/i18n';
 
 export default function SettingsScreen() {
   const { colors, mode, setMode } = useTheme();
+  const { t } = useTranslation();
 
   const options: { label: string; value: 'light' | 'dark' | 'system' }[] = [
-    { label: 'Light', value: 'light' },
-    { label: 'Dark', value: 'dark' },
-    { label: 'System', value: 'system' },
+    { label: t('settings.light'), value: 'light' },
+    { label: t('settings.dark'), value: 'dark' },
+    { label: t('settings.system'), value: 'system' },
   ];
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.heading, { color: colors.text }]}>Appearance</Text>
+      <Text style={[styles.heading, { color: colors.text }]}>{t('settings.appearance')}</Text>
       <View style={[styles.card, { backgroundColor: colors.surface }]}>
         {options.map((opt, index) => (
           <TouchableOpacity
@@ -46,6 +49,40 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         ))}
       </View>
+
+      <Text style={[styles.heading, { color: colors.text }]}>{t('settings.language')}</Text>
+      <View style={[styles.card, { backgroundColor: colors.surface }]}>
+        {LANGUAGES.map((lang, index) => (
+          <TouchableOpacity
+            key={lang.code}
+            style={[
+              styles.option,
+              index < LANGUAGES.length - 1 && {
+                borderBottomWidth: StyleSheet.hairlineWidth,
+                borderBottomColor: colors.border,
+              },
+            ]}
+            onPress={() => changeLanguage(lang.code)}
+            activeOpacity={0.6}
+          >
+            <Text style={[styles.optionLabel, { color: colors.text }]}>
+              {lang.nativeLabel}
+            </Text>
+            <View
+              style={[
+                styles.radio,
+                { borderColor: getCurrentLanguage() === lang.code ? colors.primary : colors.border },
+              ]}
+            >
+              {getCurrentLanguage() === lang.code && (
+                <View
+                  style={[styles.radioFill, { backgroundColor: colors.primary }]}
+                />
+              )}
+            </View>
+          </TouchableOpacity>
+        ))}
+      </View>
     </View>
   );
 }
@@ -68,6 +105,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
+    marginBottom: 24,
   },
   option: {
     flexDirection: 'row',

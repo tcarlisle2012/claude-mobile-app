@@ -7,6 +7,7 @@ import com.mobileapp.backend.security.CustomUserDetailsService;
 import com.mobileapp.backend.security.JwtAuthenticationEntryPoint;
 import com.mobileapp.backend.security.JwtAuthenticationFilter;
 import com.mobileapp.backend.security.JwtTokenProvider;
+import com.mobileapp.backend.util.Messages;
 import com.mobileapp.backend.util.TestDataFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ class UserControllerTest {
     @MockitoBean private UserRepository userRepository;
     @MockitoBean private JwtTokenProvider jwtTokenProvider;
     @MockitoBean private CustomUserDetailsService customUserDetailsService;
+    @MockitoBean private Messages messages;
 
     @Test
     @WithMockUser(username = "testuser")

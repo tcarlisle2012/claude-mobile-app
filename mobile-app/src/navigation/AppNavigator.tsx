@@ -3,6 +3,7 @@ import { TouchableOpacity, StyleSheet, ActivityIndicator, View } from 'react-nat
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import LoginScreen from '../screens/LoginScreen';
@@ -35,6 +36,7 @@ function AuthNavigator() {
 
 function AdminNavigator() {
   const { colors } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <AdminStack.Navigator
@@ -54,7 +56,7 @@ function AdminNavigator() {
         name="AdminUsers"
         component={AdminUsersScreen}
         options={({ navigation }) => ({
-          title: 'Users',
+          title: t('navigation.users'),
           headerLeft: () => (
             <TouchableOpacity
               onPress={() => (navigation as any).getParent()?.toggleDrawer()}
@@ -69,7 +71,7 @@ function AdminNavigator() {
       <AdminStack.Screen
         name="AdminUserDetail"
         component={AdminUserDetailScreen}
-        options={{ title: 'User Details' }}
+        options={{ title: t('navigation.userDetails') }}
       />
     </AdminStack.Navigator>
   );

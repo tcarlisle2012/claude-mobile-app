@@ -1,18 +1,20 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
 
 export default function HomeScreen() {
   const { colors } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.card, { backgroundColor: colors.surface }]}>
         <Text style={[styles.greeting, { color: colors.primary }]}>
-          Hello World
+          {t('home.greeting')}
         </Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-          Welcome to your new app
+          {t('home.subtitle')}
         </Text>
       </View>
     </View>

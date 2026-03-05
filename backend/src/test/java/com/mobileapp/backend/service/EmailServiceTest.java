@@ -10,10 +10,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.MessageSource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -26,13 +29,14 @@ class EmailServiceTest {
 
     @Mock private JavaMailSender mailSender;
     @Mock private TemplateEngine templateEngine;
+    @Mock private MessageSource messageSource;
     @Mock private MimeMessage mimeMessage;
 
     private EmailService emailService;
 
     @BeforeEach
     void setUp() {
-        emailService = new EmailService(mailSender, templateEngine);
+        emailService = new EmailService(mailSender, templateEngine, messageSource);
         ReflectionTestUtils.setField(emailService, "baseUrl", "http://localhost:8080");
         ReflectionTestUtils.setField(emailService, "fromEmail", "noreply@test.com");
     }
@@ -44,8 +48,10 @@ class EmailServiceTest {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(templateEngine.process(eq("verification-email"), any(Context.class)))
                 .thenReturn("<html>Verify</html>");
+        when(messageSource.getMessage(eq("email.verification.subject"), any(), any(), any(Locale.class)))
+                .thenReturn("Verify Your Email Address");
 
-        emailService.sendVerificationEmail(user, token);
+        emailService.sendVerificationEmail(user, token, Locale.ENGLISH);
 
         verify(mailSender).send(mimeMessage);
     }
@@ -55,12 +61,14 @@ class EmailServiceTest {
         User user = TestDataFactory.createUser();
         VerificationToken token = TestDataFactory.createVerificationToken(user);
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        when(messageSource.getMessage(eq("email.verification.subject"), any(), any(), any(Locale.class)))
+                .thenReturn("Verify Your Email Address");
 
         ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
         when(templateEngine.process(eq("verification-email"), contextCaptor.capture()))
                 .thenReturn("<html>Verify</html>");
 
-        emailService.sendVerificationEmail(user, token);
+        emailService.sendVerificationEmail(user, token, Locale.ENGLISH);
 
         Context capturedContext = contextCaptor.getValue();
         String verificationUrl = (String) capturedContext.getVariable("verificationUrl");
@@ -78,7 +86,7 @@ class EmailServiceTest {
 
         // The method only catches MessagingException, so template errors propagate.
         try {
-            emailService.sendVerificationEmail(user, token);
+            emailService.sendVerificationEmail(user, token, Locale.ENGLISH);
         } catch (RuntimeException e) {
             // Expected - template errors propagate
         }

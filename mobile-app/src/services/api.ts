@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { Platform } from 'react-native';
+import { getCurrentLanguage } from '../i18n/i18n';
 
 const BASE_URL = Platform.OS === 'android'
   ? 'http://10.0.2.2:8080/api'
@@ -72,6 +72,7 @@ async function request<T>(
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'Accept-Language': getCurrentLanguage(),
     ...(options.headers as Record<string, string>),
   };
 

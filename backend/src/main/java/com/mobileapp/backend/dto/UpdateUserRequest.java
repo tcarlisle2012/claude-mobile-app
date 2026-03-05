@@ -6,16 +6,16 @@ import jakarta.validation.constraints.Size;
 
 public class UpdateUserRequest {
 
-    @NotBlank(message = "First name is required")
-    @Size(max = 50, message = "First name must not exceed 50 characters")
+    @NotBlank(message = "{validation.firstname.required}")
+    @Size(max = 50, message = "{validation.firstname.size}")
     private String firstName;
 
-    @NotBlank(message = "Last name is required")
-    @Size(max = 50, message = "Last name must not exceed 50 characters")
+    @NotBlank(message = "{validation.lastname.required}")
+    @Size(max = 50, message = "{validation.lastname.size}")
     private String lastName;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Please provide a valid email address")
+    @NotBlank(message = "{validation.email.required}")
+    @Email(message = "{validation.email.invalid}")
     private String email;
 
     public String getFirstName() { return firstName; }

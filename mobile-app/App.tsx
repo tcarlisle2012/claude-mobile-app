@@ -1,3 +1,4 @@
+import './src/i18n/i18n';
 import 'react-native-gesture-handler';
 import React from 'react';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';

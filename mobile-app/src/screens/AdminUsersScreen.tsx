@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
 import * as api from '../services/api';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -25,6 +26,7 @@ type Props = {
 
 export default function AdminUsersScreen({ navigation }: Props) {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const [users, setUsers] = useState<api.UserDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -36,12 +38,12 @@ export default function AdminUsersScreen({ navigation }: Props) {
       const data = await api.adminGetUsers();
       setUsers(data);
     } catch (err: unknown) {
-      setError(api.getErrorMessage(err) || 'Failed to load users');
+      setError(api.getErrorMessage(err) || t('adminUsers.fallbackError'));
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [t]);
 
   useFocusEffect(
     useCallback(() => {
@@ -87,17 +89,17 @@ export default function AdminUsersScreen({ navigation }: Props) {
                   { color: item.enabled ? '#16A34A' : '#DC2626' },
                 ]}
               >
-                {item.enabled ? 'Enabled' : 'Disabled'}
+                {item.enabled ? t('adminUsers.enabled') : t('adminUsers.disabled')}
               </Text>
             </View>
             {!item.accountNonLocked && (
               <View style={[styles.badge, { backgroundColor: '#FEE2E2' }]}>
-                <Text style={[styles.badgeText, { color: '#DC2626' }]}>Locked</Text>
+                <Text style={[styles.badgeText, { color: '#DC2626' }]}>{t('adminUsers.locked')}</Text>
               </View>
             )}
             {isAdmin && (
               <View style={[styles.badge, { backgroundColor: colors.primaryLight }]}>
-                <Text style={[styles.badgeText, { color: colors.primary }]}>Admin</Text>
+                <Text style={[styles.badgeText, { color: colors.primary }]}>{t('adminUsers.admin')}</Text>
               </View>
             )}
           </View>
@@ -139,7 +141,7 @@ export default function AdminUsersScreen({ navigation }: Props) {
           <View style={styles.center}>
             <Ionicons name="people-outline" size={48} color={colors.textSecondary} />
             <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-              No users found
+              {t('adminUsers.noUsersFound')}
             </Text>
           </View>
         }

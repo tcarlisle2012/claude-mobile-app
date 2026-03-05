@@ -1,0 +1,124 @@
+{
+  "common": {
+    "appName": "My App",
+    "version": "v1.0.0",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "save": "Save",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out"
+  },
+  "login": {
+    "title": "Welcome Back",
+    "subtitle": "Sign in to your account",
+    "usernameLabel": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "submitButton": "Sign In",
+    "emptyFieldsError": "Please enter both username and password.",
+    "fallbackError": "Login failed. Please try again.",
+    "noAccount": "Don't have an account? ",
+    "signUpLink": "Sign Up"
+  },
+  "register": {
+    "title": "Create Account",
+    "subtitle": "Sign up to get started",
+    "firstNameLabel": "First Name",
+    "firstNamePlaceholder": "John",
+    "lastNameLabel": "Last Name",
+    "lastNamePlaceholder": "Doe",
+    "usernameLabel": "Username",
+    "usernamePlaceholder": "john_doe",
+    "emailLabel": "Email",
+    "emailPlaceholder": "john@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Min. 8 characters",
+    "submitButton": "Create Account",
+    "successTitle": "Registration Successful",
+    "fallbackError": "Registration failed. Please try again.",
+    "hasAccount": "Already have an account? ",
+    "signInLink": "Sign In",
+    "validation": {
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "usernameRequired": "Username is required",
+      "usernameMinLength": "Username must be at least 3 characters",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 8 characters"
+    }
+  },
+  "home": {
+    "greeting": "Hello World",
+    "subtitle": "Welcome to your new app"
+  },
+  "settings": {
+    "appearance": "Appearance",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "language": "Language"
+  },
+  "adminUsers": {
+    "fallbackError": "Failed to load users",
+    "noUsersFound": "No users found",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "locked": "Locked",
+    "admin": "Admin"
+  },
+  "adminUserDetail": {
+    "userNotFound": "User not found",
+    "editProfile": "Edit Profile",
+    "firstNameLabel": "First Name",
+    "lastNameLabel": "Last Name",
+    "emailLabel": "Email",
+    "saveChanges": "Save Changes",
+    "updateSuccess": "User updated successfully",
+    "updateError": "Failed to update user",
+    "accountStatus": "Account Status",
+    "accountEnabled": "Account Enabled",
+    "enabledHint": "User can log in when enabled",
+    "accountLocked": "Account Locked",
+    "lockedHint": "Locked accounts cannot log in",
+    "toggleEnabledError": "Failed to toggle enabled status",
+    "toggleLockedError": "Failed to toggle locked status",
+    "verificationToken": "Verification Token",
+    "tokenLabel": "Token",
+    "expiresLabel": "Expires",
+    "expired": "Expired",
+    "active": "Active",
+    "deleteToken": "Delete Token",
+    "resendVerification": "Resend Verification",
+    "noToken": "No verification token exists for this user.",
+    "generateNewToken": "Generate New Token",
+    "deleteTokenError": "Failed to delete token",
+    "regenerateTokenError": "Failed to regenerate token",
+    "dangerZone": "Danger Zone",
+    "dangerDescription": "Permanently delete this user and all associated data.",
+    "deleteUser": "Delete User",
+    "deleteUserTitle": "Delete User",
+    "deleteUserConfirm": "Are you sure you want to delete {{username}}? This cannot be undone.",
+    "deleteUserError": "Failed to delete user",
+    "loadError": "Failed to load user",
+    "validation": {
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email"
+    }
+  },
+  "drawer": {
+    "home": "Home",
+    "settings": "Settings",
+    "users": "Users",
+    "signOut": "Sign Out"
+  },
+  "navigation": {
+    "users": "Users",
+    "userDetails": "User Details"
+  }
+}

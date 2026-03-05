@@ -1,6 +1,8 @@
 package com.mobileapp.backend.exception;
 
 import com.mobileapp.backend.dto.ApiResponse;
+import com.mobileapp.backend.util.Messages;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
@@ -17,10 +19,22 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 
 class GlobalExceptionHandlerTest {
 
-    private final GlobalExceptionHandler handler = new GlobalExceptionHandler();
+    private final Messages messages = mock(Messages.class);
+    private final GlobalExceptionHandler handler = new GlobalExceptionHandler(messages);
+
+    @BeforeEach
+    void setUp() {
+        // Return the key as the message for easy assertions
+        lenient().when(messages.get(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+        lenient().when(messages.get(anyString(), any())).thenAnswer(invocation -> invocation.getArgument(0));
+    }
 
     @Test
     void handleIllegalArgument_returns400() {
@@ -39,7 +53,7 @@ class GlobalExceptionHandlerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(response.getBody().isSuccess()).isFalse();
-        assertThat(response.getBody().getMessage()).isEqualTo("Invalid username or password");
+        assertThat(response.getBody().getMessage()).isEqualTo("auth.error.bad-credentials");
     }
 
     @Test
@@ -48,7 +62,7 @@ class GlobalExceptionHandlerTest {
                 new DisabledException("disabled"));
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-        assertThat(response.getBody().getMessage()).contains("not verified");
+        assertThat(response.getBody().getMessage()).isEqualTo("auth.error.account-not-verified");
     }
 
     @Test
@@ -57,7 +71,7 @@ class GlobalExceptionHandlerTest {
                 new LockedException("locked"));
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-        assertThat(response.getBody().getMessage()).contains("locked");
+        assertThat(response.getBody().getMessage()).isEqualTo("auth.error.account-locked");
     }
 
     @Test
@@ -66,7 +80,7 @@ class GlobalExceptionHandlerTest {
                 new AccessDeniedException("denied"));
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-        assertThat(response.getBody().getMessage()).contains("permission");
+        assertThat(response.getBody().getMessage()).isEqualTo("auth.error.access-denied");
     }
 
     @Test
@@ -76,7 +90,7 @@ class GlobalExceptionHandlerTest {
         ResponseEntity<ApiResponse> response = handler.handleMissingParam(ex);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody().getMessage()).contains("token");
+        assertThat(response.getBody().getMessage()).isEqualTo("error.missing-parameter");
     }
 
     @Test
@@ -97,7 +111,7 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         Map<String, Object> body = response.getBody();
         assertThat(body.get("success")).isEqualTo(false);
-        assertThat(body.get("message")).isEqualTo("Validation failed");
+        assertThat(body.get("message")).isEqualTo("error.validation-failed");
         Map<String, String> errors = (Map<String, String>) body.get("errors");
         assertThat(errors).containsKeys("username", "email");
     }
@@ -108,6 +122,6 @@ class GlobalExceptionHandlerTest {
                 new RuntimeException("something broke"));
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-        assertThat(response.getBody().getMessage()).isEqualTo("An unexpected error occurred");
+        assertThat(response.getBody().getMessage()).isEqualTo("error.unexpected");
     }
 }

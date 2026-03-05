@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Verify Your Email</title>
+    <title th:text="#{email.verification.subject}">Verify Your Email</title>
 </head>
 <body style="margin:0;padding:0;background-color:#f4f4f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f7;padding:40px 0;">
@@ -13,7 +13,8 @@
                     <!-- Header -->
                     <tr>
                         <td style="background-color:#4F46E5;padding:32px 40px;text-align:center;">
-                            <h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:700;">
+                            <h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:700;"
+                                th:text="#{email.verification.title}">
                                 Welcome to My App
                             </h1>
                         </td>
@@ -21,10 +22,12 @@
                     <!-- Body -->
                     <tr>
                         <td style="padding:40px;">
-                            <p style="color:#1a1a2e;font-size:16px;line-height:1.6;margin:0 0 16px;">
-                                Hi <span th:text="${name}">there</span>,
+                            <p style="color:#1a1a2e;font-size:16px;line-height:1.6;margin:0 0 16px;"
+                               th:text="#{email.verification.greeting(${name})}">
+                                Hi there,
                             </p>
-                            <p style="color:#4a5568;font-size:15px;line-height:1.6;margin:0 0 24px;">
+                            <p style="color:#4a5568;font-size:15px;line-height:1.6;margin:0 0 24px;"
+                               th:text="#{email.verification.body}">
                                 Thank you for creating an account. Please verify your email
                                 address by clicking the button below.
                             </p>
@@ -32,20 +35,23 @@
                                 <tr>
                                     <td style="border-radius:8px;background-color:#4F46E5;">
                                         <a th:href="${verificationUrl}"
+                                           th:text="#{email.verification.button}"
                                            style="display:inline-block;padding:14px 32px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;letter-spacing:0.3px;">
                                             Verify Email Address
                                         </a>
                                     </td>
                                 </tr>
                             </table>
-                            <p style="color:#718096;font-size:13px;line-height:1.6;margin:0 0 8px;">
+                            <p style="color:#718096;font-size:13px;line-height:1.6;margin:0 0 8px;"
+                               th:text="#{email.verification.fallback}">
                                 If the button doesn't work, copy and paste this link into your browser:
                             </p>
                             <p style="color:#4F46E5;font-size:13px;line-height:1.6;word-break:break-all;margin:0 0 24px;">
                                 <a th:href="${verificationUrl}" th:text="${verificationUrl}"
                                    style="color:#4F46E5;">Link</a>
                             </p>
-                            <p style="color:#a0aec0;font-size:12px;line-height:1.5;margin:0;">
+                            <p style="color:#a0aec0;font-size:12px;line-height:1.5;margin:0;"
+                               th:text="#{email.verification.expiry}">
                                 This link expires in 24 hours. If you didn't create an account,
                                 you can safely ignore this email.
                             </p>
@@ -54,7 +60,8 @@
                     <!-- Footer -->
                     <tr>
                         <td style="background-color:#f8f9fa;padding:20px 40px;text-align:center;">
-                            <p style="color:#a0aec0;font-size:12px;margin:0;">
+                            <p style="color:#a0aec0;font-size:12px;margin:0;"
+                               th:text="#{email.verification.footer}">
                                 &copy; 2026 My App. All rights reserved.
                             </p>
                         </td>

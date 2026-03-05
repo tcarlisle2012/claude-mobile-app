@@ -1,6 +1,7 @@
 package com.mobileapp.backend.exception;
 
 import com.mobileapp.backend.dto.ApiResponse;
+import com.mobileapp.backend.util.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,12 @@ public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    private final Messages messages;
+
+    public GlobalExceptionHandler(Messages messages) {
+        this.messages = messages;
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse> handleResourceNotFound(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -37,33 +44,31 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiResponse> handleBadCredentials(BadCredentialsException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(ApiResponse.error("Invalid username or password"));
+                .body(ApiResponse.error(messages.get("auth.error.bad-credentials")));
     }
 
     @ExceptionHandler(DisabledException.class)
     public ResponseEntity<ApiResponse> handleDisabled(DisabledException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error(
-                        "Account is not verified. Please check your email for the verification link."));
+                .body(ApiResponse.error(messages.get("auth.error.account-not-verified")));
     }
 
     @ExceptionHandler(LockedException.class)
     public ResponseEntity<ApiResponse> handleLocked(LockedException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error(
-                        "Account is locked. Please contact an administrator."));
+                .body(ApiResponse.error(messages.get("auth.error.account-locked")));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse> handleAccessDenied(AccessDeniedException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error("You do not have permission to perform this action"));
+                .body(ApiResponse.error(messages.get("auth.error.access-denied")));
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ApiResponse> handleMissingParam(MissingServletRequestParameterException ex) {
         return ResponseEntity.badRequest()
-                .body(ApiResponse.error("Missing required parameter: " + ex.getParameterName()));
+                .body(ApiResponse.error(messages.get("error.missing-parameter", ex.getParameterName())));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -74,13 +79,13 @@ public class GlobalExceptionHandler {
                         FieldError::getField,
                         fieldError -> fieldError.getDefaultMessage() != null
                                 ? fieldError.getDefaultMessage()
-                                : "Invalid value",
+                                : messages.get("error.invalid-value"),
                         (first, second) -> first
                 ));
 
         Map<String, Object> body = Map.of(
                 "success", false,
-                "message", "Validation failed",
+                "message", messages.get("error.validation-failed"),
                 "errors", errors
         );
 
@@ -91,6 +96,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse> handleGeneral(Exception ex) {
         logger.error("Unexpected error: ", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("An unexpected error occurred"));
+                .body(ApiResponse.error(messages.get("error.unexpected")));
     }
 }

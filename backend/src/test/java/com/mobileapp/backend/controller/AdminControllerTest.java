@@ -12,6 +12,7 @@ import com.mobileapp.backend.security.JwtAuthenticationEntryPoint;
 import com.mobileapp.backend.security.JwtAuthenticationFilter;
 import com.mobileapp.backend.security.JwtTokenProvider;
 import com.mobileapp.backend.service.UserService;
+import com.mobileapp.backend.util.Messages;
 import com.mobileapp.backend.util.TestDataFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,7 @@ class AdminControllerTest {
     @MockitoBean private UserService userService;
     @MockitoBean private JwtTokenProvider jwtTokenProvider;
     @MockitoBean private CustomUserDetailsService customUserDetailsService;
+    @MockitoBean private Messages messages;
 
     // --- getAllUsers ---
 
@@ -207,6 +209,7 @@ class AdminControllerTest {
     @WithMockUser(roles = "ADMIN")
     void getVerificationToken_noToken_returns200WithMessage() throws Exception {
         when(userService.getVerificationToken(1L)).thenReturn(null);
+        when(messages.get("admin.info.no-token")).thenReturn("No verification token exists for this user");
 
         mockMvc.perform(get("/api/admin/users/1/token"))
                 .andExpect(status().isOk())

@@ -21,6 +21,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Locale;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
@@ -60,7 +62,7 @@ class AdminControllerIntegrationTest {
     }
 
     private Long registerUnverifiedUser() throws Exception {
-        doNothing().when(emailService).sendVerificationEmail(any(), any());
+        doNothing().when(emailService).sendVerificationEmail(any(), any(), any(Locale.class));
 
         RegisterRequest request = new RegisterRequest();
         request.setUsername("testuser");
@@ -78,7 +80,7 @@ class AdminControllerIntegrationTest {
     }
 
     private String getRegularUserToken() throws Exception {
-        doNothing().when(emailService).sendVerificationEmail(any(), any());
+        doNothing().when(emailService).sendVerificationEmail(any(), any(), any(Locale.class));
 
         RegisterRequest request = new RegisterRequest();
         request.setUsername("regularuser");
@@ -93,7 +95,7 @@ class AdminControllerIntegrationTest {
 
         // Capture token and verify
         ArgumentCaptor<VerificationToken> captor = ArgumentCaptor.forClass(VerificationToken.class);
-        verify(emailService).sendVerificationEmail(any(User.class), captor.capture());
+        verify(emailService).sendVerificationEmail(any(User.class), captor.capture(), any(Locale.class));
         String verifyToken = captor.getValue().getToken();
 
         mockMvc.perform(get("/api/auth/verify").param("token", verifyToken));

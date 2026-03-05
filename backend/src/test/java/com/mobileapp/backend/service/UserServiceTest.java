@@ -7,7 +7,9 @@ import com.mobileapp.backend.entity.User;
 import com.mobileapp.backend.entity.VerificationToken;
 import com.mobileapp.backend.repository.UserRepository;
 import com.mobileapp.backend.repository.VerificationTokenRepository;
+import com.mobileapp.backend.util.Messages;
 import com.mobileapp.backend.util.TestDataFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
@@ -17,11 +19,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,8 +34,15 @@ class UserServiceTest {
     @Mock private UserRepository userRepository;
     @Mock private VerificationTokenRepository tokenRepository;
     @Mock private EmailService emailService;
+    @Mock private Messages messages;
 
     @InjectMocks private UserService userService;
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(messages.get(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+        lenient().when(messages.get(anyString(), any())).thenAnswer(invocation -> invocation.getArgument(0));
+    }
 
     // --- getAllUsers ---
 
@@ -76,7 +87,7 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> userService.getUserById(99L))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("User not found");
+                .hasMessageContaining("user.error.not-found-with-id");
     }
 
     // --- updateUser ---
@@ -106,7 +117,7 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> userService.updateUser(1L, request))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Email is already registered");
+                .hasMessageContaining("auth.error.email-registered");
     }
 
     @Test
@@ -131,7 +142,7 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> userService.updateUser(99L, TestDataFactory.createUpdateUserRequest()))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("User not found");
+                .hasMessageContaining("user.error.not-found-with-id");
     }
 
     // --- toggleUserEnabled ---
@@ -299,7 +310,7 @@ class UserServiceTest {
         inOrder.verify(tokenRepository).delete(oldToken);
         inOrder.verify(tokenRepository).flush();
         inOrder.verify(tokenRepository).save(any(VerificationToken.class));
-        inOrder.verify(emailService).sendVerificationEmail(eq(user), any(VerificationToken.class));
+        inOrder.verify(emailService).sendVerificationEmail(eq(user), any(VerificationToken.class), any(Locale.class));
     }
 
     @Test
@@ -313,7 +324,7 @@ class UserServiceTest {
         assertThat(result).isNotNull();
         verify(tokenRepository, never()).delete(any(VerificationToken.class));
         verify(tokenRepository).save(any(VerificationToken.class));
-        verify(emailService).sendVerificationEmail(eq(user), any(VerificationToken.class));
+        verify(emailService).sendVerificationEmail(eq(user), any(VerificationToken.class), any(Locale.class));
     }
 
     @Test

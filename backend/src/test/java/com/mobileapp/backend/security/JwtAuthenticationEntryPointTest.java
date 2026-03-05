@@ -2,21 +2,30 @@ package com.mobileapp.backend.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.MessageSource;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.BadCredentialsException;
 
+import java.util.Locale;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class JwtAuthenticationEntryPointTest {
 
-    private final JwtAuthenticationEntryPoint entryPoint = new JwtAuthenticationEntryPoint();
+    private final MessageSource messageSource = mock(MessageSource.class);
+    private final JwtAuthenticationEntryPoint entryPoint = new JwtAuthenticationEntryPoint(messageSource);
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     void commence_returns401JsonResponse() throws Exception {
+        when(messageSource.getMessage(eq("auth.error.unauthorized"), any(), anyString(), any(Locale.class)))
+                .thenReturn("Unauthorized");
+
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/api/user/me");
         MockHttpServletResponse response = new MockHttpServletResponse();

@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
 import * as api from '../services/api';
 
@@ -30,6 +31,7 @@ export default function AdminUserDetailScreen() {
   const route = useRoute<RouteProp<AdminStackParamList, 'AdminUserDetail'>>();
   const { userId } = route.params;
   const { colors } = useTheme();
+  const { t } = useTranslation();
 
   const [user, setUser] = useState<api.UserDto | null>(null);
   const [token, setToken] = useState<api.VerificationTokenDto | null>(null);
@@ -56,11 +58,11 @@ export default function AdminUserDetailScreen() {
         email: userData.email,
       });
     } catch (err: unknown) {
-      setError(api.getErrorMessage(err) || 'Failed to load user');
+      setError(api.getErrorMessage(err) || t('adminUserDetail.loadError'));
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, t]);
 
   useEffect(() => {
     fetchData();
@@ -79,11 +81,11 @@ export default function AdminUserDetailScreen() {
 
   const validate = (): boolean => {
     const errors: Record<string, string> = {};
-    if (!form.firstName.trim()) errors.firstName = 'First name is required';
-    if (!form.lastName.trim()) errors.lastName = 'Last name is required';
-    if (!form.email.trim()) errors.email = 'Email is required';
+    if (!form.firstName.trim()) errors.firstName = t('adminUserDetail.validation.firstNameRequired');
+    if (!form.lastName.trim()) errors.lastName = t('adminUserDetail.validation.lastNameRequired');
+    if (!form.email.trim()) errors.email = t('adminUserDetail.validation.emailRequired');
     else if (!/\S+@\S+\.\S+/.test(form.email.trim()))
-      errors.email = 'Please enter a valid email';
+      errors.email = t('adminUserDetail.validation.emailInvalid');
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -101,11 +103,11 @@ export default function AdminUserDetailScreen() {
         email: form.email.trim(),
       });
       setUser(updated);
-      setSuccess('User updated successfully');
+      setSuccess(t('adminUserDetail.updateSuccess'));
     } catch (err: unknown) {
       const fieldErrs = api.getFieldErrors(err);
       if (fieldErrs) setFieldErrors(fieldErrs);
-      setError(api.getErrorMessage(err) || 'Failed to update user');
+      setError(api.getErrorMessage(err) || t('adminUserDetail.updateError'));
     } finally {
       setSaving(false);
     }
@@ -117,7 +119,7 @@ export default function AdminUserDetailScreen() {
       const updated = await api.adminToggleEnabled(userId);
       setUser(updated);
     } catch (err: unknown) {
-      setError(api.getErrorMessage(err) || 'Failed to toggle enabled status');
+      setError(api.getErrorMessage(err) || t('adminUserDetail.toggleEnabledError'));
     }
   };
 
@@ -127,7 +129,7 @@ export default function AdminUserDetailScreen() {
       const updated = await api.adminToggleLocked(userId);
       setUser(updated);
     } catch (err: unknown) {
-      setError(api.getErrorMessage(err) || 'Failed to toggle locked status');
+      setError(api.getErrorMessage(err) || t('adminUserDetail.toggleLockedError'));
     }
   };
 
@@ -137,7 +139,7 @@ export default function AdminUserDetailScreen() {
       await api.adminDeleteToken(userId);
       setToken(null);
     } catch (err: unknown) {
-      setError(api.getErrorMessage(err) || 'Failed to delete token');
+      setError(api.getErrorMessage(err) || t('adminUserDetail.deleteTokenError'));
     } finally {
       setTokenLoading(false);
     }
@@ -149,7 +151,7 @@ export default function AdminUserDetailScreen() {
       const newToken = await api.adminRegenerateToken(userId);
       setToken(newToken);
     } catch (err: unknown) {
-      setError(api.getErrorMessage(err) || 'Failed to regenerate token');
+      setError(api.getErrorMessage(err) || t('adminUserDetail.regenerateTokenError'));
     } finally {
       setTokenLoading(false);
     }
@@ -157,19 +159,19 @@ export default function AdminUserDetailScreen() {
 
   const handleDeleteUser = () => {
     Alert.alert(
-      'Delete User',
-      `Are you sure you want to delete ${user?.username}? This cannot be undone.`,
+      t('adminUserDetail.deleteUserTitle'),
+      t('adminUserDetail.deleteUserConfirm', { username: user?.username }),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
               await api.adminDeleteUser(userId);
               navigation.goBack();
             } catch (err: unknown) {
-              setError(api.getErrorMessage(err) || 'Failed to delete user');
+              setError(api.getErrorMessage(err) || t('adminUserDetail.deleteUserError'));
             }
           },
         },
@@ -188,7 +190,7 @@ export default function AdminUserDetailScreen() {
   if (!user) {
     return (
       <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.textSecondary }}>User not found</Text>
+        <Text style={{ color: colors.textSecondary }}>{t('adminUserDetail.userNotFound')}</Text>
       </View>
     );
   }
@@ -202,9 +204,9 @@ export default function AdminUserDetailScreen() {
     keyboardType?: 'default' | 'email-address';
     autoCapitalize?: 'none' | 'words';
   }[] = [
-    { key: 'firstName', label: 'First Name', icon: 'person-outline', autoCapitalize: 'words' },
-    { key: 'lastName', label: 'Last Name', icon: 'person-outline', autoCapitalize: 'words' },
-    { key: 'email', label: 'Email', icon: 'mail-outline', keyboardType: 'email-address', autoCapitalize: 'none' },
+    { key: 'firstName', label: t('adminUserDetail.firstNameLabel'), icon: 'person-outline', autoCapitalize: 'words' },
+    { key: 'lastName', label: t('adminUserDetail.lastNameLabel'), icon: 'person-outline', autoCapitalize: 'words' },
+    { key: 'email', label: t('adminUserDetail.emailLabel'), icon: 'mail-outline', keyboardType: 'email-address', autoCapitalize: 'none' },
   ];
 
   return (
@@ -257,7 +259,7 @@ export default function AdminUserDetailScreen() {
         ) : null}
 
         {/* Edit Profile */}
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>Edit Profile</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('adminUserDetail.editProfile')}</Text>
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
           {editFields.map((field) => (
             <View key={field.key} style={styles.inputGroup}>
@@ -293,19 +295,19 @@ export default function AdminUserDetailScreen() {
             {saving ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text style={styles.buttonText}>Save Changes</Text>
+              <Text style={styles.buttonText}>{t('adminUserDetail.saveChanges')}</Text>
             )}
           </TouchableOpacity>
         </View>
 
         {/* Account Status */}
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>Account Status</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('adminUserDetail.accountStatus')}</Text>
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
           <View style={[styles.switchRow, { borderBottomColor: colors.border }]}>
             <View>
-              <Text style={[styles.switchLabel, { color: colors.text }]}>Account Enabled</Text>
+              <Text style={[styles.switchLabel, { color: colors.text }]}>{t('adminUserDetail.accountEnabled')}</Text>
               <Text style={[styles.switchHint, { color: colors.textSecondary }]}>
-                User can log in when enabled
+                {t('adminUserDetail.enabledHint')}
               </Text>
             </View>
             <Switch
@@ -316,9 +318,9 @@ export default function AdminUserDetailScreen() {
           </View>
           <View style={styles.switchRow}>
             <View>
-              <Text style={[styles.switchLabel, { color: colors.text }]}>Account Locked</Text>
+              <Text style={[styles.switchLabel, { color: colors.text }]}>{t('adminUserDetail.accountLocked')}</Text>
               <Text style={[styles.switchHint, { color: colors.textSecondary }]}>
-                Locked accounts cannot log in
+                {t('adminUserDetail.lockedHint')}
               </Text>
             </View>
             <Switch
@@ -330,14 +332,14 @@ export default function AdminUserDetailScreen() {
         </View>
 
         {/* Verification Token */}
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>Verification Token</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('adminUserDetail.verificationToken')}</Text>
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
           {tokenLoading ? (
             <ActivityIndicator color={colors.primary} style={{ padding: 16 }} />
           ) : token ? (
             <>
               <View style={styles.tokenInfo}>
-                <Text style={[styles.label, { color: colors.textSecondary }]}>Token</Text>
+                <Text style={[styles.label, { color: colors.textSecondary }]}>{t('adminUserDetail.tokenLabel')}</Text>
                 <Text
                   style={[styles.tokenValue, { color: colors.text }]}
                   numberOfLines={1}
@@ -347,7 +349,7 @@ export default function AdminUserDetailScreen() {
                 </Text>
               </View>
               <View style={styles.tokenInfo}>
-                <Text style={[styles.label, { color: colors.textSecondary }]}>Expires</Text>
+                <Text style={[styles.label, { color: colors.textSecondary }]}>{t('adminUserDetail.expiresLabel')}</Text>
                 <View style={styles.tokenExpiry}>
                   <Text style={[styles.tokenValue, { color: colors.text }]}>
                     {new Date(token.expiryDate).toLocaleString()}
@@ -364,7 +366,7 @@ export default function AdminUserDetailScreen() {
                         { color: token.expired ? '#DC2626' : '#16A34A' },
                       ]}
                     >
-                      {token.expired ? 'Expired' : 'Active'}
+                      {token.expired ? t('adminUserDetail.expired') : t('adminUserDetail.active')}
                     </Text>
                   </View>
                 </View>
@@ -375,7 +377,7 @@ export default function AdminUserDetailScreen() {
                   onPress={handleDeleteToken}
                   activeOpacity={0.7}
                 >
-                  <Text style={[styles.outlineButtonText, { color: '#DC2626' }]}>Delete Token</Text>
+                  <Text style={[styles.outlineButtonText, { color: '#DC2626' }]}>{t('adminUserDetail.deleteToken')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.outlineButton, { borderColor: colors.primary }]}
@@ -383,7 +385,7 @@ export default function AdminUserDetailScreen() {
                   activeOpacity={0.7}
                 >
                   <Text style={[styles.outlineButtonText, { color: colors.primary }]}>
-                    Resend Verification
+                    {t('adminUserDetail.resendVerification')}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -391,7 +393,7 @@ export default function AdminUserDetailScreen() {
           ) : (
             <>
               <Text style={[styles.noTokenText, { color: colors.textSecondary }]}>
-                No verification token exists for this user.
+                {t('adminUserDetail.noToken')}
               </Text>
               <TouchableOpacity
                 style={[styles.outlineButton, { borderColor: colors.primary, alignSelf: 'flex-start' }]}
@@ -399,7 +401,7 @@ export default function AdminUserDetailScreen() {
                 activeOpacity={0.7}
               >
                 <Text style={[styles.outlineButtonText, { color: colors.primary }]}>
-                  Generate New Token
+                  {t('adminUserDetail.generateNewToken')}
                 </Text>
               </TouchableOpacity>
             </>
@@ -407,17 +409,17 @@ export default function AdminUserDetailScreen() {
         </View>
 
         {/* Danger Zone */}
-        <Text style={[styles.sectionTitle, { color: '#DC2626' }]}>Danger Zone</Text>
+        <Text style={[styles.sectionTitle, { color: '#DC2626' }]}>{t('adminUserDetail.dangerZone')}</Text>
         <View style={[styles.card, { backgroundColor: colors.surface, borderColor: '#DC2626', borderWidth: 1 }]}>
           <Text style={[styles.dangerHint, { color: colors.textSecondary }]}>
-            Permanently delete this user and all associated data.
+            {t('adminUserDetail.dangerDescription')}
           </Text>
           <TouchableOpacity
             style={[styles.button, { backgroundColor: '#DC2626' }]}
             onPress={handleDeleteUser}
             activeOpacity={0.8}
           >
-            <Text style={styles.buttonText}>Delete User</Text>
+            <Text style={styles.buttonText}>{t('adminUserDetail.deleteUser')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

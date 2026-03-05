@@ -11,7 +11,9 @@ import com.mobileapp.backend.repository.RoleRepository;
 import com.mobileapp.backend.repository.UserRepository;
 import com.mobileapp.backend.repository.VerificationTokenRepository;
 import com.mobileapp.backend.security.JwtTokenProvider;
+import com.mobileapp.backend.util.Messages;
 import com.mobileapp.backend.util.TestDataFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -24,11 +26,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -42,8 +46,16 @@ class AuthServiceTest {
     @Mock private AuthenticationManager authenticationManager;
     @Mock private JwtTokenProvider jwtTokenProvider;
     @Mock private EmailService emailService;
+    @Mock private Messages messages;
 
     @InjectMocks private AuthService authService;
+
+    @BeforeEach
+    void setUp() {
+        // Make the Messages mock return the key itself as the message string
+        lenient().when(messages.get(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+        lenient().when(messages.get(anyString(), any())).thenAnswer(invocation -> invocation.getArgument(0));
+    }
 
     @Test
     void register_success_createsUserAndSendsEmail() {
@@ -57,7 +69,7 @@ class AuthServiceTest {
 
         String result = authService.register(request);
 
-        assertThat(result).contains("Registration successful");
+        assertThat(result).isEqualTo("auth.success.registration");
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(userCaptor.capture());
@@ -68,7 +80,7 @@ class AuthServiceTest {
         assertThat(savedUser.getRoles()).contains(userRole);
 
         verify(tokenRepository).save(any(VerificationToken.class));
-        verify(emailService).sendVerificationEmail(eq(savedUser), any(VerificationToken.class));
+        verify(emailService).sendVerificationEmail(eq(savedUser), any(VerificationToken.class), any(Locale.class));
     }
 
     @Test
@@ -78,7 +90,7 @@ class AuthServiceTest {
 
         assertThatThrownBy(() -> authService.register(request))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Username is already taken");
+                .hasMessageContaining("auth.error.username-taken");
 
         verify(userRepository, never()).save(any());
     }
@@ -91,7 +103,7 @@ class AuthServiceTest {
 
         assertThatThrownBy(() -> authService.register(request))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Email is already registered");
+                .hasMessageContaining("auth.error.email-registered");
 
         verify(userRepository, never()).save(any());
     }
@@ -105,7 +117,7 @@ class AuthServiceTest {
 
         assertThatThrownBy(() -> authService.register(request))
                 .isInstanceOf(com.mobileapp.backend.exception.ResourceNotFoundException.class)
-                .hasMessageContaining("Default role not found");
+                .hasMessageContaining("error.role-not-found");
     }
 
     @Test
@@ -116,7 +128,7 @@ class AuthServiceTest {
 
         String result = authService.verifyEmail(token.getToken());
 
-        assertThat(result).contains("Email verified successfully");
+        assertThat(result).isEqualTo("auth.success.email-verified");
         assertThat(user.isEnabled()).isTrue();
         verify(userRepository).save(user);
         verify(tokenRepository).delete(token);
@@ -128,7 +140,7 @@ class AuthServiceTest {
 
         assertThatThrownBy(() -> authService.verifyEmail("invalid"))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Invalid verification token");
+                .hasMessageContaining("auth.error.invalid-token");
     }
 
     @Test
@@ -139,7 +151,7 @@ class AuthServiceTest {
 
         assertThatThrownBy(() -> authService.verifyEmail(token.getToken()))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("expired");
+                .hasMessageContaining("auth.error.token-expired");
 
         verify(tokenRepository).delete(token);
     }
