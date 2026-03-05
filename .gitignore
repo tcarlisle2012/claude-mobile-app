@@ -31,3 +31,4 @@ data/
 
 # Logs
 *.log
+/.idea/
