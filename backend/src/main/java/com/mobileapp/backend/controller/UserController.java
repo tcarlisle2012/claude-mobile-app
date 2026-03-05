@@ -2,6 +2,7 @@ package com.mobileapp.backend.controller;
 
 import com.mobileapp.backend.dto.UserDto;
 import com.mobileapp.backend.entity.User;
+import com.mobileapp.backend.exception.ResourceNotFoundException;
 import com.mobileapp.backend.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,7 +25,7 @@ public class UserController {
     public ResponseEntity<UserDto> getCurrentUser(
             @AuthenticationPrincipal UserDetails userDetails) {
         User user = userRepository.findByUsername(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return ResponseEntity.ok(UserDto.fromEntity(user));
     }
 }

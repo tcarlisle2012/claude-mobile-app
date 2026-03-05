@@ -36,6 +36,22 @@ export interface ApiResponse {
   errors?: Record<string, string>;
 }
 
+export function getErrorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (typeof err === 'object' && err !== null && 'message' in err) {
+    return String((err as { message: unknown }).message);
+  }
+  if (typeof err === 'string') return err;
+  return '';
+}
+
+export function getFieldErrors(err: unknown): Record<string, string> | undefined {
+  if (typeof err === 'object' && err !== null && 'errors' in err) {
+    return (err as { errors: Record<string, string> }).errors;
+  }
+  return undefined;
+}
+
 export interface UserDto {
   id: number;
   username: string;

@@ -97,14 +97,14 @@ class AuthServiceTest {
     }
 
     @Test
-    void register_roleNotFound_throwsRuntimeException() {
+    void register_roleNotFound_throwsResourceNotFoundException() {
         RegisterRequest request = TestDataFactory.createRegisterRequest();
         when(userRepository.existsByUsername(request.getUsername())).thenReturn(false);
         when(userRepository.existsByEmail(request.getEmail())).thenReturn(false);
         when(roleRepository.findByName(RoleName.ROLE_USER)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> authService.register(request))
-                .isInstanceOf(RuntimeException.class)
+                .isInstanceOf(com.mobileapp.backend.exception.ResourceNotFoundException.class)
                 .hasMessageContaining("Default role not found");
     }
 

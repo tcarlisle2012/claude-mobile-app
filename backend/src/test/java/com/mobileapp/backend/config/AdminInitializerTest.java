@@ -87,12 +87,12 @@ class AdminInitializerTest {
     }
 
     @Test
-    void run_adminRoleNotFound_throwsRuntimeException() {
+    void run_adminRoleNotFound_throwsIllegalStateException() {
         when(userRepository.existsByUsername("admin")).thenReturn(false);
         when(roleRepository.findByName(RoleName.ROLE_ADMIN)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> adminInitializer.run())
-                .isInstanceOf(RuntimeException.class)
+                .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("ROLE_ADMIN not found");
     }
 }

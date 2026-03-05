@@ -14,8 +14,13 @@ import { useTheme } from '../theme/ThemeContext';
 import * as api from '../services/api';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+type AdminStackParamList = {
+  AdminUsers: undefined;
+  AdminUserDetail: { userId: number };
+};
+
 type Props = {
-  navigation: NativeStackNavigationProp<any>;
+  navigation: NativeStackNavigationProp<AdminStackParamList, 'AdminUsers'>;
 };
 
 export default function AdminUsersScreen({ navigation }: Props) {
@@ -30,8 +35,8 @@ export default function AdminUsersScreen({ navigation }: Props) {
       setError('');
       const data = await api.adminGetUsers();
       setUsers(data);
-    } catch (err: any) {
-      setError(err?.message || 'Failed to load users');
+    } catch (err: unknown) {
+      setError(api.getErrorMessage(err) || 'Failed to load users');
     } finally {
       setLoading(false);
       setRefreshing(false);

@@ -13,19 +13,27 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useTheme } from '../theme/ThemeContext';
 import * as api from '../services/api';
 
+type AdminStackParamList = {
+  AdminUsers: undefined;
+  AdminUserDetail: { userId: number };
+};
+
+type EditFormFields = 'firstName' | 'lastName' | 'email';
+type EditFormState = Record<EditFormFields, string>;
+
 export default function AdminUserDetailScreen() {
   const navigation = useNavigation();
-  const route = useRoute<any>();
-  const { userId } = route.params as { userId: number };
+  const route = useRoute<RouteProp<AdminStackParamList, 'AdminUserDetail'>>();
+  const { userId } = route.params;
   const { colors } = useTheme();
 
   const [user, setUser] = useState<api.UserDto | null>(null);
   const [token, setToken] = useState<api.VerificationTokenDto | null>(null);
-  const [form, setForm] = useState({ firstName: '', lastName: '', email: '' });
+  const [form, setForm] = useState<EditFormState>({ firstName: '', lastName: '', email: '' });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -47,8 +55,8 @@ export default function AdminUserDetailScreen() {
         lastName: userData.lastName,
         email: userData.email,
       });
-    } catch (err: any) {
-      setError(err?.message || 'Failed to load user');
+    } catch (err: unknown) {
+      setError(api.getErrorMessage(err) || 'Failed to load user');
     } finally {
       setLoading(false);
     }
@@ -58,7 +66,7 @@ export default function AdminUserDetailScreen() {
     fetchData();
   }, [fetchData]);
 
-  const updateField = (key: string, value: string) => {
+  const updateField = (key: EditFormFields, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     if (fieldErrors[key]) {
       setFieldErrors((prev) => {
@@ -94,9 +102,10 @@ export default function AdminUserDetailScreen() {
       });
       setUser(updated);
       setSuccess('User updated successfully');
-    } catch (err: any) {
-      if (err?.errors) setFieldErrors(err.errors);
-      setError(err?.message || 'Failed to update user');
+    } catch (err: unknown) {
+      const fieldErrs = api.getFieldErrors(err);
+      if (fieldErrs) setFieldErrors(fieldErrs);
+      setError(api.getErrorMessage(err) || 'Failed to update user');
     } finally {
       setSaving(false);
     }
@@ -107,8 +116,8 @@ export default function AdminUserDetailScreen() {
       setError('');
       const updated = await api.adminToggleEnabled(userId);
       setUser(updated);
-    } catch (err: any) {
-      setError(err?.message || 'Failed to toggle enabled status');
+    } catch (err: unknown) {
+      setError(api.getErrorMessage(err) || 'Failed to toggle enabled status');
     }
   };
 
@@ -117,8 +126,8 @@ export default function AdminUserDetailScreen() {
       setError('');
       const updated = await api.adminToggleLocked(userId);
       setUser(updated);
-    } catch (err: any) {
-      setError(err?.message || 'Failed to toggle locked status');
+    } catch (err: unknown) {
+      setError(api.getErrorMessage(err) || 'Failed to toggle locked status');
     }
   };
 
@@ -127,8 +136,8 @@ export default function AdminUserDetailScreen() {
     try {
       await api.adminDeleteToken(userId);
       setToken(null);
-    } catch (err: any) {
-      setError(err?.message || 'Failed to delete token');
+    } catch (err: unknown) {
+      setError(api.getErrorMessage(err) || 'Failed to delete token');
     } finally {
       setTokenLoading(false);
     }
@@ -139,8 +148,8 @@ export default function AdminUserDetailScreen() {
     try {
       const newToken = await api.adminRegenerateToken(userId);
       setToken(newToken);
-    } catch (err: any) {
-      setError(err?.message || 'Failed to regenerate token');
+    } catch (err: unknown) {
+      setError(api.getErrorMessage(err) || 'Failed to regenerate token');
     } finally {
       setTokenLoading(false);
     }
@@ -159,8 +168,8 @@ export default function AdminUserDetailScreen() {
             try {
               await api.adminDeleteUser(userId);
               navigation.goBack();
-            } catch (err: any) {
-              setError(err?.message || 'Failed to delete user');
+            } catch (err: unknown) {
+              setError(api.getErrorMessage(err) || 'Failed to delete user');
             }
           },
         },
@@ -187,7 +196,7 @@ export default function AdminUserDetailScreen() {
   const initials = `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
 
   const editFields: {
-    key: string;
+    key: EditFormFields;
     label: string;
     icon: keyof typeof Ionicons.glyphMap;
     keyboardType?: 'default' | 'email-address';
@@ -262,7 +271,7 @@ export default function AdminUserDetailScreen() {
                 <Ionicons name={field.icon} size={18} color={colors.icon} style={styles.inputIcon} />
                 <TextInput
                   style={[styles.input, { color: colors.text }]}
-                  value={(form as any)[field.key]}
+                  value={form[field.key]}
                   onChangeText={(v) => updateField(field.key, v)}
                   keyboardType={field.keyboardType ?? 'default'}
                   autoCapitalize={field.autoCapitalize ?? 'sentences'}

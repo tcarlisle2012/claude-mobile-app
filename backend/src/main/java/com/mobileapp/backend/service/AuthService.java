@@ -7,6 +7,7 @@ import com.mobileapp.backend.entity.Role;
 import com.mobileapp.backend.entity.Role.RoleName;
 import com.mobileapp.backend.entity.User;
 import com.mobileapp.backend.entity.VerificationToken;
+import com.mobileapp.backend.exception.ResourceNotFoundException;
 import com.mobileapp.backend.repository.RoleRepository;
 import com.mobileapp.backend.repository.UserRepository;
 import com.mobileapp.backend.repository.VerificationTokenRepository;
@@ -67,7 +68,7 @@ public class AuthService {
         );
 
         Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-                .orElseThrow(() -> new RuntimeException("Default role not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Default role not found"));
         user.setRoles(new HashSet<>(Set.of(userRole)));
         user.setEnabled(false); // Disabled until email verification
 
@@ -111,7 +112,7 @@ public class AuthService {
         String jwt = jwtTokenProvider.generateToken(authentication);
 
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         var roles = user.getRoles().stream()
                 .map(role -> role.getName().name())

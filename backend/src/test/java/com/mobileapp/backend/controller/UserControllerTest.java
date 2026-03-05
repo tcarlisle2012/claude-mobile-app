@@ -54,10 +54,10 @@ class UserControllerTest {
 
     @Test
     @WithMockUser(username = "testuser")
-    void me_userNotFound_returns500() throws Exception {
+    void me_userNotFound_returns404() throws Exception {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/user/me"))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isNotFound());
     }
 }

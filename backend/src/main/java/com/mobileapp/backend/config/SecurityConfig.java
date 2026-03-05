@@ -2,9 +2,9 @@ package com.mobileapp.backend.config;
 
 import com.mobileapp.backend.security.JwtAuthenticationEntryPoint;
 import com.mobileapp.backend.security.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -29,6 +29,9 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint authEntryPoint;
     private final JwtAuthenticationFilter jwtAuthFilter;
 
+    @Value("${app.cors.allowed-origins:*}")
+    private String allowedOrigins;
+
     public SecurityConfig(JwtAuthenticationEntryPoint authEntryPoint,
                           JwtAuthenticationFilter jwtAuthFilter) {
         this.authEntryPoint = authEntryPoint;
@@ -50,6 +53,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            // CSRF is disabled because this is a stateless REST API using JWT tokens (NOSONAR)
             .csrf(csrf -> csrf.disable())
             .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))
             .sessionManagement(session ->
@@ -76,9 +80,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*"));
+        configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setExposedHeaders(List.of("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

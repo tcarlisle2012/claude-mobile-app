@@ -57,7 +57,7 @@ public class AdminController {
     }
 
     @GetMapping("/users/{id}/token")
-    public ResponseEntity<?> getVerificationToken(@PathVariable Long id) {
+    public ResponseEntity<Object> getVerificationToken(@PathVariable Long id) {
         VerificationTokenDto token = userService.getVerificationToken(id);
         if (token == null) {
             return ResponseEntity.ok(ApiResponse.success("No verification token exists for this user"));

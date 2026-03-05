@@ -1,5 +1,6 @@
 package com.mobileapp.backend.security;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -108,7 +109,7 @@ class JwtAuthenticationFilterTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         request.addHeader("Authorization", "Bearer error-token");
 
-        when(tokenProvider.validateToken("error-token")).thenThrow(new RuntimeException("error"));
+        when(tokenProvider.validateToken("error-token")).thenThrow(new JwtException("error"));
 
         filter.doFilterInternal(request, response, filterChain);
 

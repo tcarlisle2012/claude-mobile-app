@@ -53,8 +53,7 @@ public class EmailService {
             mailSender.send(message);
             logger.info("Verification email sent to: {}", user.getEmail());
         } catch (MessagingException e) {
-            logger.error("Failed to send verification email to {}: {}",
-                    user.getEmail(), e.getMessage());
+            logger.error("Failed to send verification email to {}", user.getEmail(), e);
         }
     }
 }

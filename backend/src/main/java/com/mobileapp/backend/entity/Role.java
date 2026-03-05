@@ -2,6 +2,8 @@ package com.mobileapp.backend.entity;
 
 import jakarta.persistence.*;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "roles")
 public class Role {
@@ -26,6 +28,19 @@ public class Role {
 
     public RoleName getName() { return name; }
     public void setName(RoleName name) { this.name = name; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Role role = (Role) o;
+        return id != null && Objects.equals(id, role.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 
     public enum RoleName {
         ROLE_USER,

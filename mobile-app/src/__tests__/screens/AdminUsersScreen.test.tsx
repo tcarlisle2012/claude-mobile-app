@@ -3,7 +3,10 @@ import { render, waitFor } from '@testing-library/react-native';
 import AdminUsersScreen from '../../screens/AdminUsersScreen';
 import { ThemeProvider } from '../../theme/ThemeContext';
 
-jest.mock('../../services/api');
+jest.mock('../../services/api', () => ({
+  ...jest.requireActual('../../services/api'),
+  adminGetUsers: jest.fn(),
+}));
 const api = require('../../services/api');
 
 // Mock useFocusEffect as useEffect

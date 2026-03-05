@@ -50,7 +50,9 @@ public class AdminInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         if (userRepository.existsByUsername(adminUsername)) {
-            User existing = userRepository.findByUsername(adminUsername).get();
+            User existing = userRepository.findByUsername(adminUsername)
+                    .orElseThrow(() -> new IllegalStateException(
+                            "Admin user not found despite existsByUsername returning true"));
             if (!passwordEncoder.matches(adminPassword, existing.getPassword())) {
                 existing.setPassword(passwordEncoder.encode(adminPassword));
                 userRepository.save(existing);
@@ -62,10 +64,10 @@ public class AdminInitializer implements CommandLineRunner {
         }
 
         Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new IllegalStateException(
                         "ROLE_ADMIN not found — ensure Liquibase seed changeset has run"));
         Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new IllegalStateException(
                         "ROLE_USER not found — ensure Liquibase seed changeset has run"));
 
         User admin = new User(

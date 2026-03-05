@@ -13,6 +13,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { getErrorMessage } from '../services/api';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type Props = {
@@ -39,8 +40,8 @@ export default function LoginScreen({ navigation }: Props) {
     setLoading(true);
     try {
       await login(username.trim(), password);
-    } catch (err: any) {
-      setError(err?.message || 'Login failed. Please try again.');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err) || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }

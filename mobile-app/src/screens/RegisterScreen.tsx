@@ -14,17 +14,21 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { getErrorMessage, getFieldErrors } from '../services/api';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type Props = {
   navigation: NativeStackNavigationProp<{ Login: undefined; Register: undefined }>;
 };
 
+type FormFields = 'firstName' | 'lastName' | 'username' | 'email' | 'password';
+type FormState = Record<FormFields, string>;
+
 export default function RegisterScreen({ navigation }: Props) {
   const { colors } = useTheme();
   const { register } = useAuth();
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<FormState>({
     firstName: '',
     lastName: '',
     username: '',
@@ -36,7 +40,7 @@ export default function RegisterScreen({ navigation }: Props) {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
-  const updateField = (key: string, value: string) => {
+  const updateField = (key: FormFields, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     if (fieldErrors[key]) {
       setFieldErrors((prev) => {
@@ -78,18 +82,19 @@ export default function RegisterScreen({ navigation }: Props) {
       Alert.alert('Registration Successful', message, [
         { text: 'Sign In', onPress: () => navigation.navigate('Login') },
       ]);
-    } catch (err: any) {
-      if (err?.errors) {
-        setFieldErrors(err.errors);
+    } catch (err: unknown) {
+      const fieldErrs = getFieldErrors(err);
+      if (fieldErrs) {
+        setFieldErrors(fieldErrs);
       }
-      setError(err?.message || 'Registration failed. Please try again.');
+      setError(getErrorMessage(err) || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const fields: {
-    key: string;
+    key: FormFields;
     label: string;
     icon: keyof typeof Ionicons.glyphMap;
     placeholder: string;
@@ -145,7 +150,7 @@ export default function RegisterScreen({ navigation }: Props) {
                   style={[styles.input, { color: colors.text }]}
                   placeholder={field.placeholder}
                   placeholderTextColor={colors.textSecondary}
-                  value={(form as any)[field.key]}
+                  value={form[field.key]}
                   onChangeText={(v) => updateField(field.key, v)}
                   autoCapitalize={field.autoCapitalize ?? 'sentences'}
                   keyboardType={field.keyboardType ?? 'default'}
