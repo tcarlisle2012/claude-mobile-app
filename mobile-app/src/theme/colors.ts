@@ -11,6 +11,19 @@ export const LightTheme = {
   drawerActive: '#4F46E5',
   drawerActiveBackground: '#EEF2FF',
   statusBar: 'dark' as const,
+  error: '#DC2626',
+  errorBackground: '#FEE2E2',
+  success: '#16A34A',
+  successBackground: '#DCFCE7',
+  warning: '#CA8A04',
+  warningBackground: '#FEF9C3',
+  buttonText: '#FFFFFF',
+  overlay: 'rgba(0,0,0,0.3)',
+  methodGet: '#2563EB',
+  methodPost: '#16A34A',
+  methodPut: '#CA8A04',
+  methodDelete: '#E87171',
+  methodDefault: '#6B7280',
 };
 
 export const DarkTheme = {
@@ -26,6 +39,19 @@ export const DarkTheme = {
   drawerActive: '#818CF8',
   drawerActiveBackground: '#1E1B4B',
   statusBar: 'light' as const,
+  error: '#EF4444',
+  errorBackground: '#450A0A',
+  success: '#22C55E',
+  successBackground: '#052E16',
+  warning: '#EAB308',
+  warningBackground: '#422006',
+  buttonText: '#FFFFFF',
+  overlay: 'rgba(0,0,0,0.6)',
+  methodGet: '#60A5FA',
+  methodPost: '#22C55E',
+  methodPut: '#EAB308',
+  methodDelete: '#F87171',
+  methodDefault: '#9CA3AF',
 };
 
 export type ThemeColors = Omit<typeof LightTheme, 'statusBar'> & {

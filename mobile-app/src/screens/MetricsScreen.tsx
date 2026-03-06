@@ -15,30 +15,30 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
 import * as api from '../services/api';
 
-const getSpeedColor = (meanTimeMs: number): string => {
-  if (meanTimeMs < 100) return '#16A34A';
-  if (meanTimeMs < 500) return '#CA8A04';
-  return '#DC2626';
-};
-
-const getSpeedBg = (meanTimeMs: number): string => {
-  if (meanTimeMs < 100) return '#DCFCE7';
-  if (meanTimeMs < 500) return '#FEF9C3';
-  return '#FEE2E2';
-};
-
-const getMethodColor = (method: string): string => {
-  switch (method) {
-    case 'GET': return '#2563EB';
-    case 'POST': return '#16A34A';
-    case 'PUT': return '#CA8A04';
-    case 'DELETE': return '#E87171';
-    default: return '#6B7280';
-  }
-};
-
 export default function MetricsScreen() {
   const { colors } = useTheme();
+
+  const getSpeedColor = (meanTimeMs: number): string => {
+    if (meanTimeMs < 100) return colors.success;
+    if (meanTimeMs < 500) return colors.warning;
+    return colors.error;
+  };
+
+  const getSpeedBg = (meanTimeMs: number): string => {
+    if (meanTimeMs < 100) return colors.successBackground;
+    if (meanTimeMs < 500) return colors.warningBackground;
+    return colors.errorBackground;
+  };
+
+  const getMethodColor = (method: string): string => {
+    switch (method) {
+      case 'GET': return colors.methodGet;
+      case 'POST': return colors.methodPost;
+      case 'PUT': return colors.methodPut;
+      case 'DELETE': return colors.methodDelete;
+      default: return colors.methodDefault;
+    }
+  };
   const { t } = useTranslation();
   const [metrics, setMetrics] = useState<api.MetricsResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -123,17 +123,17 @@ export default function MetricsScreen() {
     >
       {error ? (
         <TouchableOpacity
-          style={[styles.errorBox, { backgroundColor: '#FEE2E2' }]}
+          style={[styles.errorBox, { backgroundColor: colors.errorBackground }]}
           onPress={fetchMetrics}
           activeOpacity={0.7}
           accessibilityRole="alert"
           accessibilityLiveRegion="polite"
           accessibilityLabel={`${error}. ${t('common.tapToRetry')}`}
         >
-          <Ionicons name="alert-circle" size={18} color="#DC2626" />
+          <Ionicons name="alert-circle" size={18} color={colors.error} />
           <View style={styles.errorContent}>
-            <Text style={styles.errorText}>{error}</Text>
-            <Text style={styles.retryText}>{t('common.tapToRetry')}</Text>
+            <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
+            <Text style={[styles.retryText, { color: colors.error }]}>{t('common.tapToRetry')}</Text>
           </View>
         </TouchableOpacity>
       ) : null}
@@ -183,8 +183,8 @@ export default function MetricsScreen() {
                   <Text style={[styles.uri, { color: colors.text }]} numberOfLines={1}>
                     {metric.uri}
                   </Text>
-                  <View style={[styles.statusBadge, { backgroundColor: metric.status.startsWith('2') ? '#DCFCE7' : '#FEE2E2' }]}>
-                    <Text style={[styles.statusText, { color: metric.status.startsWith('2') ? '#16A34A' : '#DC2626' }]}>
+                  <View style={[styles.statusBadge, { backgroundColor: metric.status.startsWith('2') ? colors.successBackground : colors.errorBackground }]}>
+                    <Text style={[styles.statusText, { color: metric.status.startsWith('2') ? colors.success : colors.error }]}>
                       {metric.status}
                     </Text>
                   </View>
@@ -217,21 +217,21 @@ export default function MetricsScreen() {
           {metrics.failedAuthAttempts && metrics.failedAuthAttempts.length > 0 ? (
             <>
               <View style={styles.sectionHeader}>
-                <Ionicons name="shield-outline" size={20} color="#DC2626" />
+                <Ionicons name="shield-outline" size={20} color={colors.error} />
                 <Text style={[styles.sectionTitle, { color: colors.text }]}>
                   {t('metrics.failedAuth.title')}
                 </Text>
-                <View style={[styles.countBadge, { backgroundColor: '#FEE2E2' }]}>
-                  <Text style={styles.countBadgeText}>
+                <View style={[styles.countBadge, { backgroundColor: colors.errorBackground }]}>
+                  <Text style={[styles.countBadgeText, { color: colors.error }]}>
                     {metrics.failedAuthAttempts.length}
                   </Text>
                 </View>
                 <TouchableOpacity
-                  style={[styles.clearButton, { backgroundColor: '#FEE2E2' }]}
+                  style={[styles.clearButton, { backgroundColor: colors.errorBackground }]}
                   onPress={handleClearFailedAuth}
                 >
-                  <Ionicons name="trash-outline" size={14} color="#DC2626" />
-                  <Text style={styles.clearButtonText}>{t('metrics.failedAuth.clear')}</Text>
+                  <Ionicons name="trash-outline" size={14} color={colors.error} />
+                  <Text style={[styles.clearButtonText, { color: colors.error }]}>{t('metrics.failedAuth.clear')}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -249,8 +249,8 @@ export default function MetricsScreen() {
                     <Text style={[styles.uri, { color: colors.text }]} numberOfLines={1}>
                       {attempt.path}
                     </Text>
-                    <View style={[styles.statusBadge, { backgroundColor: '#FEE2E2' }]}>
-                      <Text style={[styles.statusText, { color: '#DC2626' }]}>
+                    <View style={[styles.statusBadge, { backgroundColor: colors.errorBackground }]}>
+                      <Text style={[styles.statusText, { color: colors.error }]}>
                         {attempt.status}
                       </Text>
                     </View>
@@ -281,7 +281,7 @@ export default function MetricsScreen() {
             </>
           ) : metrics.failedAuthAttempts ? (
             <View style={styles.sectionHeader}>
-              <Ionicons name="shield-checkmark-outline" size={20} color="#16A34A" />
+              <Ionicons name="shield-checkmark-outline" size={20} color={colors.success} />
               <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
                 {t('metrics.failedAuth.noAttempts')}
               </Text>
@@ -408,11 +408,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   errorText: {
-    color: '#DC2626',
     fontSize: 14,
   },
   retryText: {
-    color: '#DC2626',
     fontSize: 12,
     fontWeight: '600',
     marginTop: 2,
@@ -440,7 +438,6 @@ const styles = StyleSheet.create({
   countBadgeText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#DC2626',
   },
   failedAuthDetails: {
     borderTopWidth: StyleSheet.hairlineWidth,
@@ -474,6 +471,5 @@ const styles = StyleSheet.create({
   clearButtonText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#DC2626',
   },
 });

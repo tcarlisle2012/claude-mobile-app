@@ -247,22 +247,22 @@ export default function AdminUserDetailScreen() {
         {/* Messages */}
         {error ? (
           <View
-            style={[styles.messageBox, { backgroundColor: '#FEE2E2' }]}
+            style={[styles.messageBox, { backgroundColor: colors.errorBackground }]}
             accessibilityRole="alert"
             accessibilityLiveRegion="polite"
           >
-            <Ionicons name="alert-circle" size={18} color="#DC2626" />
-            <Text style={[styles.messageText, { color: '#DC2626' }]}>{error}</Text>
+            <Ionicons name="alert-circle" size={18} color={colors.error} />
+            <Text style={[styles.messageText, { color: colors.error }]}>{error}</Text>
           </View>
         ) : null}
         {success ? (
           <View
-            style={[styles.messageBox, { backgroundColor: '#DCFCE7' }]}
+            style={[styles.messageBox, { backgroundColor: colors.successBackground }]}
             accessibilityRole="alert"
             accessibilityLiveRegion="polite"
           >
-            <Ionicons name="checkmark-circle" size={18} color="#16A34A" />
-            <Text style={[styles.messageText, { color: '#16A34A' }]}>{success}</Text>
+            <Ionicons name="checkmark-circle" size={18} color={colors.success} />
+            <Text style={[styles.messageText, { color: colors.success }]}>{success}</Text>
           </View>
         ) : null}
 
@@ -275,7 +275,7 @@ export default function AdminUserDetailScreen() {
               <View
                 style={[
                   styles.inputRow,
-                  { borderColor: fieldErrors[field.key] ? '#DC2626' : colors.border },
+                  { borderColor: fieldErrors[field.key] ? colors.error : colors.border },
                 ]}
               >
                 <Ionicons name={field.icon} size={18} color={colors.icon} style={styles.inputIcon} />
@@ -290,7 +290,7 @@ export default function AdminUserDetailScreen() {
                 />
               </View>
               {fieldErrors[field.key] ? (
-                <Text style={styles.fieldError}>{fieldErrors[field.key]}</Text>
+                <Text style={[styles.fieldError, { color: colors.error }]}>{fieldErrors[field.key]}</Text>
               ) : null}
             </View>
           ))}
@@ -304,9 +304,9 @@ export default function AdminUserDetailScreen() {
             accessibilityLabel={t('adminUserDetail.saveChanges')}
           >
             {saving ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color={colors.buttonText} />
             ) : (
-              <Text style={styles.buttonText}>{t('adminUserDetail.saveChanges')}</Text>
+              <Text style={[styles.buttonText, { color: colors.buttonText }]}>{t('adminUserDetail.saveChanges')}</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -338,7 +338,7 @@ export default function AdminUserDetailScreen() {
             <Switch
               value={!user.accountNonLocked}
               onValueChange={handleToggleLocked}
-              trackColor={{ false: colors.border, true: '#DC2626' }}
+              trackColor={{ false: colors.border, true: colors.error }}
               accessibilityLabel={t('adminUserDetail.accountLocked')}
             />
           </View>
@@ -370,13 +370,13 @@ export default function AdminUserDetailScreen() {
                   <View
                     style={[
                       styles.badge,
-                      { backgroundColor: token.expired ? '#FEE2E2' : '#DCFCE7', marginLeft: 8 },
+                      { backgroundColor: token.expired ? colors.errorBackground : colors.successBackground, marginLeft: 8 },
                     ]}
                   >
                     <Text
                       style={[
                         styles.badgeText,
-                        { color: token.expired ? '#DC2626' : '#16A34A' },
+                        { color: token.expired ? colors.error : colors.success },
                       ]}
                     >
                       {token.expired ? t('adminUserDetail.expired') : t('adminUserDetail.active')}
@@ -386,11 +386,11 @@ export default function AdminUserDetailScreen() {
               </View>
               <View style={styles.tokenActions}>
                 <TouchableOpacity
-                  style={[styles.outlineButton, { borderColor: '#DC2626' }]}
+                  style={[styles.outlineButton, { borderColor: colors.error }]}
                   onPress={handleDeleteToken}
                   activeOpacity={0.7}
                 >
-                  <Text style={[styles.outlineButtonText, { color: '#DC2626' }]}>{t('adminUserDetail.deleteToken')}</Text>
+                  <Text style={[styles.outlineButtonText, { color: colors.error }]}>{t('adminUserDetail.deleteToken')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.outlineButton, { borderColor: colors.primary }]}
@@ -422,17 +422,17 @@ export default function AdminUserDetailScreen() {
         </View>
 
         {/* Danger Zone */}
-        <Text style={[styles.sectionTitle, { color: '#DC2626' }]}>{t('adminUserDetail.dangerZone')}</Text>
-        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: '#DC2626', borderWidth: 1 }]}>
+        <Text style={[styles.sectionTitle, { color: colors.error }]}>{t('adminUserDetail.dangerZone')}</Text>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.error, borderWidth: 1 }]}>
           <Text style={[styles.dangerHint, { color: colors.textSecondary }]}>
             {t('adminUserDetail.dangerDescription')}
           </Text>
           <TouchableOpacity
-            style={[styles.button, { backgroundColor: '#DC2626' }]}
+            style={[styles.button, { backgroundColor: colors.error }]}
             onPress={handleDeleteUser}
             activeOpacity={0.8}
           >
-            <Text style={styles.buttonText}>{t('adminUserDetail.deleteUser')}</Text>
+            <Text style={[styles.buttonText, { color: colors.buttonText }]}>{t('adminUserDetail.deleteUser')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -553,7 +553,6 @@ const styles = StyleSheet.create({
     height: 48,
   },
   fieldError: {
-    color: '#DC2626',
     fontSize: 12,
     marginTop: 4,
     marginLeft: 4,
@@ -566,7 +565,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   buttonText: {
-    color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '600',
   },

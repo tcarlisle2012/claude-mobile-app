@@ -61,11 +61,11 @@ export default function HealthScreen() {
   };
 
   const getStatusColor = (status: string) => {
-    return status === 'UP' ? '#16A34A' : '#DC2626';
+    return status === 'UP' ? colors.success : colors.error;
   };
 
   const getStatusBg = (status: string) => {
-    return status === 'UP' ? '#DCFCE7' : '#FEE2E2';
+    return status === 'UP' ? colors.successBackground : colors.errorBackground;
   };
 
   const formatDetailValue = (value: unknown): string => {
@@ -113,17 +113,17 @@ export default function HealthScreen() {
     >
       {error ? (
         <TouchableOpacity
-          style={[styles.errorBox, { backgroundColor: '#FEE2E2' }]}
+          style={[styles.errorBox, { backgroundColor: colors.errorBackground }]}
           onPress={fetchHealth}
           activeOpacity={0.7}
           accessibilityRole="alert"
           accessibilityLiveRegion="polite"
           accessibilityLabel={`${error}. ${t('common.tapToRetry')}`}
         >
-          <Ionicons name="alert-circle" size={18} color="#DC2626" />
+          <Ionicons name="alert-circle" size={18} color={colors.error} />
           <View style={styles.errorContent}>
-            <Text style={styles.errorText}>{error}</Text>
-            <Text style={styles.retryText}>{t('common.tapToRetry')}</Text>
+            <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
+            <Text style={[styles.retryText, { color: colors.error }]}>{t('common.tapToRetry')}</Text>
           </View>
         </TouchableOpacity>
       ) : null}
@@ -360,11 +360,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   errorText: {
-    color: '#DC2626',
     fontSize: 14,
   },
   retryText: {
-    color: '#DC2626',
     fontSize: 12,
     fontWeight: '600',
     marginTop: 2,
