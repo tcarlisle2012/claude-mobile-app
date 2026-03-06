@@ -39,6 +39,18 @@ app:
     password: admin
     email: admin@test.com
 
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
+  health:
+    mail:
+      enabled: false
+
 logging:
   level:
     com.mobileapp.backend: WARN

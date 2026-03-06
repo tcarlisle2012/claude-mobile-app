@@ -10,6 +10,8 @@ import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import AdminUsersScreen from '../screens/AdminUsersScreen';
 import AdminUserDetailScreen from '../screens/AdminUserDetailScreen';
+import HealthScreen from '../screens/HealthScreen';
+import MetricsScreen from '../screens/MetricsScreen';
 import CustomDrawerContent from './CustomDrawerContent';
 import { useTheme } from '../theme/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -118,6 +120,16 @@ function MainNavigator() {
           name="Users"
           component={AdminNavigator}
           options={{ headerShown: false }}
+        />
+      )}
+      {isAdmin && (
+        <Drawer.Screen name="Health" component={HealthScreen} />
+      )}
+      {isAdmin && (
+        <Drawer.Screen
+          name="Metrics"
+          component={MetricsScreen}
+          options={{ drawerItemStyle: { display: 'none' } }}
         />
       )}
     </Drawer.Navigator>

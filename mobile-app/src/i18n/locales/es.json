@@ -111,14 +111,42 @@
       "emailInvalid": "Por favor, ingrese un correo electr\u00f3nico v\u00e1lido"
     }
   },
+  "health": {
+    "overallStatus": "Estado general",
+    "up": "ACTIVO",
+    "down": "INACTIVO",
+    "noComponents": "No se encontraron componentes de salud",
+    "loadError": "Error al cargar el estado de salud",
+    "viewMetrics": "Ver m\u00e9tricas",
+    "components": {
+      "db": "Base de datos",
+      "diskSpace": "Espacio en disco",
+      "mail": "Servidor de correo",
+      "ping": "Ping"
+    }
+  },
   "drawer": {
     "home": "Inicio",
     "settings": "Configuraci\u00f3n",
     "users": "Usuarios",
+    "health": "Salud",
+    "metrics": "M\u00e9tricas",
     "signOut": "Cerrar sesi\u00f3n"
+  },
+  "metrics": {
+    "totalRequests": "Total de solicitudes",
+    "avgResponseTime": "Tiempo promedio",
+    "noMetrics": "No se han registrado m\u00e9tricas de solicitudes",
+    "loadError": "Error al cargar las m\u00e9tricas",
+    "count": "Solicitudes",
+    "avgTime": "Tiempo prom.",
+    "maxTime": "Tiempo m\u00e1x.",
+    "ms": "ms"
   },
   "navigation": {
     "users": "Usuarios",
-    "userDetails": "Detalles del usuario"
+    "userDetails": "Detalles del usuario",
+    "health": "Salud",
+    "metrics": "M\u00e9tricas"
   }
 }
