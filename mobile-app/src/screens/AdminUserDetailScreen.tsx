@@ -246,13 +246,21 @@ export default function AdminUserDetailScreen() {
 
         {/* Messages */}
         {error ? (
-          <View style={[styles.messageBox, { backgroundColor: '#FEE2E2' }]}>
+          <View
+            style={[styles.messageBox, { backgroundColor: '#FEE2E2' }]}
+            accessibilityRole="alert"
+            accessibilityLiveRegion="polite"
+          >
             <Ionicons name="alert-circle" size={18} color="#DC2626" />
             <Text style={[styles.messageText, { color: '#DC2626' }]}>{error}</Text>
           </View>
         ) : null}
         {success ? (
-          <View style={[styles.messageBox, { backgroundColor: '#DCFCE7' }]}>
+          <View
+            style={[styles.messageBox, { backgroundColor: '#DCFCE7' }]}
+            accessibilityRole="alert"
+            accessibilityLiveRegion="polite"
+          >
             <Ionicons name="checkmark-circle" size={18} color="#16A34A" />
             <Text style={[styles.messageText, { color: '#16A34A' }]}>{success}</Text>
           </View>
@@ -287,10 +295,13 @@ export default function AdminUserDetailScreen() {
             </View>
           ))}
           <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.primary }]}
+            style={[styles.button, { backgroundColor: colors.primary, opacity: saving ? 0.6 : 1 }]}
             onPress={handleSave}
             disabled={saving}
             activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: saving }}
+            accessibilityLabel={t('adminUserDetail.saveChanges')}
           >
             {saving ? (
               <ActivityIndicator color="#FFFFFF" />
@@ -314,6 +325,7 @@ export default function AdminUserDetailScreen() {
               value={user.enabled}
               onValueChange={handleToggleEnabled}
               trackColor={{ false: colors.border, true: colors.primary }}
+              accessibilityLabel={t('adminUserDetail.accountEnabled')}
             />
           </View>
           <View style={styles.switchRow}>
@@ -327,6 +339,7 @@ export default function AdminUserDetailScreen() {
               value={!user.accountNonLocked}
               onValueChange={handleToggleLocked}
               trackColor={{ false: colors.border, true: '#DC2626' }}
+              accessibilityLabel={t('adminUserDetail.accountLocked')}
             />
           </View>
         </View>

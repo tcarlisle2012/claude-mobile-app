@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -41,6 +41,7 @@ export default function RegisterScreen({ navigation }: Props) {
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const fieldRefs = useRef<Record<string, TextInput | null>>({});
 
   const updateField = (key: FormFields, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -119,6 +120,7 @@ export default function RegisterScreen({ navigation }: Props) {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
         <View style={styles.header}>
           <View style={[styles.iconContainer, { backgroundColor: colors.primaryLight }]}>
@@ -131,7 +133,11 @@ export default function RegisterScreen({ navigation }: Props) {
         </View>
 
         {error ? (
-          <View style={[styles.errorBox, { backgroundColor: '#FEE2E2' }]}>
+          <View
+            style={[styles.errorBox, { backgroundColor: '#FEE2E2' }]}
+            accessibilityRole="alert"
+            accessibilityLiveRegion="polite"
+          >
             <Ionicons name="alert-circle" size={18} color="#DC2626" />
             <Text style={styles.errorText}>{error}</Text>
           </View>
@@ -149,6 +155,7 @@ export default function RegisterScreen({ navigation }: Props) {
               >
                 <Ionicons name={field.icon} size={18} color={colors.icon} style={styles.inputIcon} />
                 <TextInput
+                  ref={(el) => { fieldRefs.current[field.key] = el; }}
                   style={[styles.input, { color: colors.text }]}
                   placeholder={field.placeholder}
                   placeholderTextColor={colors.textSecondary}
@@ -158,9 +165,24 @@ export default function RegisterScreen({ navigation }: Props) {
                   keyboardType={field.keyboardType ?? 'default'}
                   secureTextEntry={field.secure && !showPassword}
                   autoCorrect={false}
+                  returnKeyType={field.secure ? 'go' : 'next'}
+                  onSubmitEditing={() => {
+                    if (field.secure) {
+                      handleRegister();
+                    } else {
+                      const order: FormFields[] = ['firstName', 'lastName', 'username', 'email', 'password'];
+                      const next = order[order.indexOf(field.key) + 1];
+                      if (next) fieldRefs.current[next]?.focus();
+                    }
+                  }}
                 />
                 {field.secure && (
-                  <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeButton}>
+                  <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                    style={styles.eyeButton}
+                    accessibilityRole="button"
+                    accessibilityLabel={showPassword ? t('register.hidePassword') : t('register.showPassword')}
+                  >
                     <Ionicons
                       name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                       size={20}
@@ -176,10 +198,13 @@ export default function RegisterScreen({ navigation }: Props) {
           ))}
 
           <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.primary }]}
+            style={[styles.button, { backgroundColor: colors.primary, opacity: loading ? 0.6 : 1 }]}
             onPress={handleRegister}
             disabled={loading}
             activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: loading }}
+            accessibilityLabel={t('register.submitButton')}
           >
             {loading ? (
               <ActivityIndicator color="#FFFFFF" />
@@ -281,7 +306,8 @@ const styles = StyleSheet.create({
     height: 48,
   },
   eyeButton: {
-    padding: 4,
+    padding: 8,
+    marginRight: -4,
   },
   fieldError: {
     color: '#DC2626',

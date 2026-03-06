@@ -35,6 +35,9 @@ export default function SettingsScreen() {
             ]}
             onPress={() => setMode(opt.value)}
             activeOpacity={0.6}
+            accessibilityRole="radio"
+            accessibilityState={{ checked: mode === opt.value }}
+            accessibilityLabel={opt.label}
           >
             <Text style={[styles.optionLabel, { color: colors.text }]}>
               {opt.label}
@@ -70,6 +73,9 @@ export default function SettingsScreen() {
             setSystemLanguage(true);
           }}
           activeOpacity={0.6}
+          accessibilityRole="radio"
+          accessibilityState={{ checked: systemLanguage }}
+          accessibilityLabel={t('settings.systemLanguage')}
         >
           <Text style={[styles.optionLabel, { color: colors.text }]}>
             {t('settings.systemLanguage')}
@@ -102,6 +108,9 @@ export default function SettingsScreen() {
               setSystemLanguage(false);
             }}
             activeOpacity={0.6}
+            accessibilityRole="radio"
+            accessibilityState={{ checked: !systemLanguage && getCurrentLanguage() === lang.code }}
+            accessibilityLabel={lang.nativeLabel}
           >
             <Text style={[styles.optionLabel, { color: colors.text }]}>
               {lang.nativeLabel}
