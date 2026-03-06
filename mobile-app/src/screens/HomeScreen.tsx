@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
+import { Card } from '../components';
 
 export default function HomeScreen() {
   const { colors } = useTheme();
@@ -9,14 +10,14 @@ export default function HomeScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.card, { backgroundColor: colors.surface }]}>
+      <Card style={styles.card}>
         <Text style={[styles.greeting, { color: colors.primary }]}>
           {t('home.greeting')}
         </Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
           {t('home.subtitle')}
         </Text>
-      </View>
+      </Card>
     </View>
   );
 }
@@ -33,11 +34,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 48,
     borderRadius: 20,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
   },
   greeting: {
     fontSize: 32,

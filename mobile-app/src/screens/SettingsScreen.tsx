@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
+import { Card } from '../components';
 import { changeLanguage, resetToDeviceLanguage, isUsingSystemLanguage, LANGUAGES, getCurrentLanguage } from '../i18n/i18n';
 
 export default function SettingsScreen() {
@@ -22,7 +23,7 @@ export default function SettingsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Text style={[styles.heading, { color: colors.text }]}>{t('settings.appearance')}</Text>
-      <View style={[styles.card, { backgroundColor: colors.surface }]}>
+      <Card style={styles.card}>
         {options.map((opt, index) => (
           <TouchableOpacity
             key={opt.value}
@@ -56,10 +57,10 @@ export default function SettingsScreen() {
             </View>
           </TouchableOpacity>
         ))}
-      </View>
+      </Card>
 
       <Text style={[styles.heading, { color: colors.text }]}>{t('settings.language')}</Text>
-      <View style={[styles.card, { backgroundColor: colors.surface }]}>
+      <Card style={styles.card}>
         <TouchableOpacity
           style={[
             styles.option,
@@ -129,7 +130,7 @@ export default function SettingsScreen() {
             </View>
           </TouchableOpacity>
         ))}
-      </View>
+      </Card>
     </View>
   );
 }
@@ -145,13 +146,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   card: {
-    borderRadius: 16,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
     marginBottom: 24,
   },
   option: {

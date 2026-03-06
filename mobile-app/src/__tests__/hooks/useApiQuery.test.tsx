@@ -1,8 +1,8 @@
 import React from 'react';
 import { Text, TouchableOpacity } from 'react-native';
-import { render, waitFor, fireEvent } from '@testing-library/react-native';
+import { waitFor, fireEvent } from '@testing-library/react-native';
 import useApiQuery from '../../hooks/useApiQuery';
-import { ThemeProvider } from '../../theme/ThemeContext';
+import { renderWithTheme } from '../test-utils';
 
 jest.mock('@react-navigation/native', () => ({
   ...jest.requireActual('@react-navigation/native'),
@@ -30,11 +30,7 @@ function TestComponent({ fetcher, fallback }: { fetcher: () => Promise<any>; fal
 }
 
 function renderHook(fetcher: () => Promise<any>, fallback = 'Error') {
-  return render(
-    <ThemeProvider>
-      <TestComponent fetcher={fetcher} fallback={fallback} />
-    </ThemeProvider>,
-  );
+  return renderWithTheme(<TestComponent fetcher={fetcher} fallback={fallback} />);
 }
 
 describe('useApiQuery', () => {

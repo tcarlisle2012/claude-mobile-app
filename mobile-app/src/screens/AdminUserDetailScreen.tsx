@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
 import { LoadingScreen, AlertBanner, Card, Badge, Button, FormInput } from '../components';
@@ -23,7 +24,7 @@ type EditFormFields = 'firstName' | 'lastName' | 'email';
 type EditFormState = Record<EditFormFields, string>;
 
 export default function AdminUserDetailScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<AdminStackParamList>>();
   const route = useRoute<RouteProp<AdminStackParamList, 'AdminUserDetail'>>();
   const { userId } = route.params;
   const { colors } = useTheme();

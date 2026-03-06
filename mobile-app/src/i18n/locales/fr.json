@@ -8,7 +8,9 @@
     "signIn": "Se connecter",
     "signUp": "S'inscrire",
     "signOut": "Se déconnecter",
-    "tapToRetry": "Appuyez pour réessayer"
+    "tapToRetry": "Appuyez pour réessayer",
+    "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter.",
+    "networkError": "Connexion impossible. Veuillez vérifier votre connexion internet et réessayer."
   },
   "login": {
     "title": "Bon retour",

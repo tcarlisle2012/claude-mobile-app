@@ -1,7 +1,7 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { fireEvent } from '@testing-library/react-native';
 import FormInput from '../../components/FormInput';
-import { ThemeProvider } from '../../theme/ThemeContext';
+import { renderWithTheme } from '../test-utils';
 
 function renderComponent(props: Partial<React.ComponentProps<typeof FormInput>> = {}) {
   const defaultProps = {
@@ -10,11 +10,7 @@ function renderComponent(props: Partial<React.ComponentProps<typeof FormInput>> 
     value: '',
     onChangeText: jest.fn(),
   };
-  return render(
-    <ThemeProvider>
-      <FormInput {...defaultProps} {...props} />
-    </ThemeProvider>,
-  );
+  return renderWithTheme(<FormInput {...defaultProps} {...props} />);
 }
 
 describe('FormInput', () => {

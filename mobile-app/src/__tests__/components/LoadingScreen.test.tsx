@@ -1,14 +1,9 @@
 import React from 'react';
-import { render } from '@testing-library/react-native';
 import LoadingScreen from '../../components/LoadingScreen';
-import { ThemeProvider } from '../../theme/ThemeContext';
+import { renderWithTheme } from '../test-utils';
 
 function renderComponent(props = {}) {
-  return render(
-    <ThemeProvider>
-      <LoadingScreen {...props} />
-    </ThemeProvider>,
-  );
+  return renderWithTheme(<LoadingScreen {...props} />);
 }
 
 describe('LoadingScreen', () => {

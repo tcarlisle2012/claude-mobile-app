@@ -143,9 +143,9 @@ describe('Error handling', () => {
     ).rejects.toEqual({ success: false, message: 'Bad request' });
   });
 
-  it('propagates network errors', async () => {
+  it('propagates network errors as empty ApiResponse', async () => {
     mockFetch.mockRejectedValueOnce(new Error('Network error'));
-    await expect(getMe()).rejects.toThrow('Network error');
+    await expect(getMe()).rejects.toEqual({ success: false, message: '' });
   });
 });
 

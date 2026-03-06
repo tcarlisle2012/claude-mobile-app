@@ -1,14 +1,10 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { fireEvent } from '@testing-library/react-native';
 import AlertBanner from '../../components/AlertBanner';
-import { ThemeProvider } from '../../theme/ThemeContext';
+import { renderWithTheme } from '../test-utils';
 
 function renderComponent(props: React.ComponentProps<typeof AlertBanner>) {
-  return render(
-    <ThemeProvider>
-      <AlertBanner {...props} />
-    </ThemeProvider>,
-  );
+  return renderWithTheme(<AlertBanner {...props} />);
 }
 
 describe('AlertBanner', () => {

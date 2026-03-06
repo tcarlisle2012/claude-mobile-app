@@ -8,17 +8,18 @@ import {
   RefreshControl,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
 import { LoadingScreen, AlertBanner, Badge, EmptyState } from '../components';
 import useApiQuery from '../hooks/useApiQuery';
+import type { DrawerParamList } from '../navigation/types';
 import * as api from '../services/api';
 
 export default function HealthScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<DrawerParamList>>();
   const [expandedComponents, setExpandedComponents] = useState<Set<string>>(new Set());
 
   const { data: health, loading, error, refreshing, onRefresh, refetch } = useApiQuery(

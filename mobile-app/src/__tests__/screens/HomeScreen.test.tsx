@@ -1,14 +1,9 @@
 import React from 'react';
-import { render } from '@testing-library/react-native';
 import HomeScreen from '../../screens/HomeScreen';
-import { ThemeProvider } from '../../theme/ThemeContext';
+import { renderWithTheme } from '../test-utils';
 
 function renderScreen() {
-  return render(
-    <ThemeProvider>
-      <HomeScreen />
-    </ThemeProvider>,
-  );
+  return renderWithTheme(<HomeScreen />);
 }
 
 describe('HomeScreen', () => {

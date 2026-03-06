@@ -1,11 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
 import { getCurrentLanguage } from '../i18n/i18n';
+import config from '../config';
 
-const BASE_URL = Platform.OS === 'android'
-  ? 'http://10.0.2.2:8080/api'
-  : 'http://localhost:8080/api';
+const BASE_URL = config.apiBaseUrl;
 const TOKEN_KEY = 'auth_token';
+
+let onUnauthorized: (() => void) | null = null;
+
+export function setOnUnauthorized(cb: (() => void) | null) {
+  onUnauthorized = cb;
+}
 
 export interface RegisterRequest {
   username: string;
@@ -64,6 +68,10 @@ export interface UserDto {
   createdAt: string;
 }
 
+// NOTE: No refresh-token flow. JWTs expire after 24 hours.
+// When the token expires, the 401 interceptor (see below) logs the user out.
+// To add silent renewal, implement a /auth/refresh endpoint on the backend
+// and call it here when a 401 is received before retrying the original request.
 async function request<T>(
   path: string,
   options: RequestInit = {},
@@ -80,15 +88,24 @@ async function request<T>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${BASE_URL}${path}`, {
-    ...options,
-    headers,
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${BASE_URL}${path}`, {
+      ...options,
+      headers,
+    });
+  } catch {
+    throw { success: false, message: '' } as ApiResponse;
+  }
 
   const text = await response.text();
   const data = text ? JSON.parse(text) : null;
 
   if (!response.ok) {
+    if (response.status === 401 && token) {
+      await clearToken();
+      onUnauthorized?.();
+    }
     throw data as ApiResponse;
   }
 

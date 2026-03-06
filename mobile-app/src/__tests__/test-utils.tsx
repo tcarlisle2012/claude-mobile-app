@@ -14,6 +14,10 @@ function AllProviders({ children }: { children: React.ReactNode }) {
   );
 }
 
+function ThemeWrapper({ children }: { children: React.ReactNode }) {
+  return <ThemeProvider>{children}</ThemeProvider>;
+}
+
 function renderWithProviders(
   ui: React.ReactElement,
   options?: Omit<RenderOptions, 'wrapper'>,
@@ -21,4 +25,11 @@ function renderWithProviders(
   return render(ui, { wrapper: AllProviders, ...options });
 }
 
-export { renderWithProviders, render };
+function renderWithTheme(
+  ui: React.ReactElement,
+  options?: Omit<RenderOptions, 'wrapper'>,
+) {
+  return render(ui, { wrapper: ThemeWrapper, ...options });
+}
+
+export { renderWithProviders, renderWithTheme, render };
