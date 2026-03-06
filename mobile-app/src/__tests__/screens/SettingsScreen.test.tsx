@@ -18,10 +18,11 @@ describe('SettingsScreen', () => {
   });
 
   it('renders all three theme options', () => {
-    const { getByText } = renderScreen();
+    const { getByText, getAllByText } = renderScreen();
     expect(getByText('Light')).toBeTruthy();
     expect(getByText('Dark')).toBeTruthy();
-    expect(getByText('System')).toBeTruthy();
+    // "System" appears for both theme and language
+    expect(getAllByText('System').length).toBeGreaterThanOrEqual(1);
   });
 
   it('pressing Light calls setMode(light)', () => {
@@ -36,7 +37,8 @@ describe('SettingsScreen', () => {
   });
 
   it('pressing System calls setMode(system)', () => {
-    const { getByText } = renderScreen();
-    fireEvent.press(getByText('System'));
+    const { getAllByText } = renderScreen();
+    // First "System" is the theme option, second is the language option
+    fireEvent.press(getAllByText('System')[0]);
   });
 });

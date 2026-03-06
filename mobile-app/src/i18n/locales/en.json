@@ -60,7 +60,8 @@
     "light": "Light",
     "dark": "Dark",
     "system": "System",
-    "language": "Language"
+    "language": "Language",
+    "systemLanguage": "System"
   },
   "adminUsers": {
     "fallbackError": "Failed to load users",

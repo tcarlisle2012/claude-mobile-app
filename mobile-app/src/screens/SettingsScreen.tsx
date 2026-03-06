@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
-import { changeLanguage, LANGUAGES, getCurrentLanguage } from '../i18n/i18n';
+import { changeLanguage, resetToDeviceLanguage, isUsingSystemLanguage, LANGUAGES, getCurrentLanguage } from '../i18n/i18n';
 
 export default function SettingsScreen() {
   const { colors, mode, setMode } = useTheme();
   const { t } = useTranslation();
+  const [systemLanguage, setSystemLanguage] = useState(true);
+
+  useEffect(() => {
+    isUsingSystemLanguage().then(setSystemLanguage);
+  }, []);
 
   const options: { label: string; value: 'light' | 'dark' | 'system' }[] = [
     { label: t('settings.light'), value: 'light' },
@@ -52,6 +57,36 @@ export default function SettingsScreen() {
 
       <Text style={[styles.heading, { color: colors.text }]}>{t('settings.language')}</Text>
       <View style={[styles.card, { backgroundColor: colors.surface }]}>
+        <TouchableOpacity
+          style={[
+            styles.option,
+            {
+              borderBottomWidth: StyleSheet.hairlineWidth,
+              borderBottomColor: colors.border,
+            },
+          ]}
+          onPress={() => {
+            resetToDeviceLanguage();
+            setSystemLanguage(true);
+          }}
+          activeOpacity={0.6}
+        >
+          <Text style={[styles.optionLabel, { color: colors.text }]}>
+            {t('settings.systemLanguage')}
+          </Text>
+          <View
+            style={[
+              styles.radio,
+              { borderColor: systemLanguage ? colors.primary : colors.border },
+            ]}
+          >
+            {systemLanguage && (
+              <View
+                style={[styles.radioFill, { backgroundColor: colors.primary }]}
+              />
+            )}
+          </View>
+        </TouchableOpacity>
         {LANGUAGES.map((lang, index) => (
           <TouchableOpacity
             key={lang.code}
@@ -62,7 +97,10 @@ export default function SettingsScreen() {
                 borderBottomColor: colors.border,
               },
             ]}
-            onPress={() => changeLanguage(lang.code)}
+            onPress={() => {
+              changeLanguage(lang.code);
+              setSystemLanguage(false);
+            }}
             activeOpacity={0.6}
           >
             <Text style={[styles.optionLabel, { color: colors.text }]}>
@@ -71,10 +109,10 @@ export default function SettingsScreen() {
             <View
               style={[
                 styles.radio,
-                { borderColor: getCurrentLanguage() === lang.code ? colors.primary : colors.border },
+                { borderColor: !systemLanguage && getCurrentLanguage() === lang.code ? colors.primary : colors.border },
               ]}
             >
-              {getCurrentLanguage() === lang.code && (
+              {!systemLanguage && getCurrentLanguage() === lang.code && (
                 <View
                   style={[styles.radioFill, { backgroundColor: colors.primary }]}
                 />
