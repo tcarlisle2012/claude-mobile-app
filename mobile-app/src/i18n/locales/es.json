@@ -60,7 +60,8 @@
     "light": "Claro",
     "dark": "Oscuro",
     "system": "Sistema",
-    "language": "Idioma"
+    "language": "Idioma",
+    "systemLanguage": "Sistema"
   },
   "adminUsers": {
     "fallbackError": "Error al cargar los usuarios",

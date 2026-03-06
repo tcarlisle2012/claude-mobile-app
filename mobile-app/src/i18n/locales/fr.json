@@ -60,7 +60,8 @@
     "light": "Clair",
     "dark": "Sombre",
     "system": "Syst\u00e8me",
-    "language": "Langue"
+    "language": "Langue",
+    "systemLanguage": "Syst\u00e8me"
   },
   "adminUsers": {
     "fallbackError": "\u00c9chec du chargement des utilisateurs",
