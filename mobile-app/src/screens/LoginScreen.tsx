@@ -8,17 +8,18 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { AlertBanner, FormInput, Button } from '../components';
 import { getErrorMessage } from '../services/api';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { AuthStackParamList } from '../navigation/types';
 
 type Props = {
-  navigation: NativeStackNavigationProp<{ Login: undefined; Register: undefined }>;
+  navigation: NativeStackNavigationProp<AuthStackParamList>;
 };
 
 export default function LoginScreen({ navigation }: Props) {
@@ -70,83 +71,40 @@ export default function LoginScreen({ navigation }: Props) {
           </Text>
         </View>
 
-        {error ? (
-          <View
-            style={[styles.errorBox, { backgroundColor: colors.errorBackground }]}
-            accessibilityRole="alert"
-            accessibilityLiveRegion="polite"
-          >
-            <Ionicons name="alert-circle" size={18} color={colors.error} />
-            <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
-          </View>
-        ) : null}
+        {error ? <AlertBanner type="error" message={error} style={styles.errorBanner} /> : null}
 
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.textSecondary }]}>{t('login.usernameLabel')}</Text>
-            <View style={[styles.inputRow, { borderColor: colors.border }]}>
-              <Ionicons name="person-outline" size={18} color={colors.icon} style={styles.inputIcon} />
-              <TextInput
-                style={[styles.input, { color: colors.text }]}
-                placeholder={t('login.usernamePlaceholder')}
-                placeholderTextColor={colors.textSecondary}
-                value={username}
-                onChangeText={setUsername}
-                autoCapitalize="none"
-                autoCorrect={false}
-                returnKeyType="next"
-                onSubmitEditing={() => passwordRef.current?.focus()}
-              />
-            </View>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.textSecondary }]}>{t('login.passwordLabel')}</Text>
-            <View style={[styles.inputRow, { borderColor: colors.border }]}>
-              <Ionicons name="lock-closed-outline" size={18} color={colors.icon} style={styles.inputIcon} />
-              <TextInput
-                ref={passwordRef}
-                style={[styles.input, { color: colors.text }]}
-                placeholder={t('login.passwordPlaceholder')}
-                placeholderTextColor={colors.textSecondary}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-                autoCorrect={false}
-                returnKeyType="go"
-                onSubmitEditing={handleLogin}
-              />
-              <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
-                style={styles.eyeButton}
-                accessibilityRole="button"
-                accessibilityLabel={showPassword ? t('login.hidePassword') : t('login.showPassword')}
-              >
-                <Ionicons
-                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                  size={20}
-                  color={colors.icon}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.primary, opacity: loading ? 0.6 : 1 }]}
+          <FormInput
+            label={t('login.usernameLabel')}
+            icon="person-outline"
+            value={username}
+            onChangeText={setUsername}
+            placeholder={t('login.usernamePlaceholder')}
+            autoCapitalize="none"
+            returnKeyType="next"
+            onSubmitEditing={() => passwordRef.current?.focus()}
+          />
+          <FormInput
+            ref={passwordRef}
+            label={t('login.passwordLabel')}
+            icon="lock-closed-outline"
+            value={password}
+            onChangeText={setPassword}
+            placeholder={t('login.passwordPlaceholder')}
+            secureTextEntry
+            showPasswordToggle
+            showPassword={showPassword}
+            onTogglePassword={() => setShowPassword(!showPassword)}
+            autoCapitalize="none"
+            returnKeyType="go"
+            onSubmitEditing={handleLogin}
+          />
+          <Button
+            title={t('login.submitButton')}
             onPress={handleLogin}
-            disabled={loading}
-            activeOpacity={0.8}
-            accessibilityRole="button"
-            accessibilityState={{ disabled: loading }}
-            accessibilityLabel={t('login.submitButton')}
-          >
-            {loading ? (
-              <ActivityIndicator color={colors.buttonText} />
-            ) : (
-              <Text style={[styles.buttonText, { color: colors.buttonText }]}>{t('login.submitButton')}</Text>
-            )}
-          </TouchableOpacity>
+            loading={loading}
+            style={styles.submitButton}
+          />
         </View>
 
         <View style={styles.footer}>
@@ -192,17 +150,8 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginTop: 6,
   },
-  errorBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderRadius: 12,
+  errorBanner: {
     marginBottom: 16,
-    gap: 8,
-  },
-  errorText: {
-    fontSize: 14,
-    flex: 1,
   },
   card: {
     borderRadius: 20,
@@ -213,46 +162,10 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 4,
   },
-  inputGroup: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    height: 48,
-  },
-  inputIcon: {
-    marginRight: 8,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    height: 48,
-  },
-  eyeButton: {
-    padding: 8,
-    marginRight: -4,
-  },
-  button: {
+  submitButton: {
     height: 50,
     borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
     marginTop: 8,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
   },
   footer: {
     flexDirection: 'row',

@@ -1,22 +1,28 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import {
   View,
   Text,
   ScrollView,
   StyleSheet,
-  ActivityIndicator,
   RefreshControl,
   TouchableOpacity,
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
+import { LoadingScreen, AlertBanner, Card, Badge, EmptyState } from '../components';
+import useApiQuery from '../hooks/useApiQuery';
 import * as api from '../services/api';
 
 export default function MetricsScreen() {
   const { colors } = useTheme();
+  const { t } = useTranslation();
+
+  const { data: metrics, loading, error, refreshing, onRefresh, refetch } = useApiQuery(
+    useCallback(() => api.adminGetMetrics(), []),
+    t('metrics.loadError'),
+  );
 
   const getSpeedColor = (meanTimeMs: number): string => {
     if (meanTimeMs < 100) return colors.success;
@@ -39,35 +45,6 @@ export default function MetricsScreen() {
       default: return colors.methodDefault;
     }
   };
-  const { t } = useTranslation();
-  const [metrics, setMetrics] = useState<api.MetricsResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState('');
-
-  const fetchMetrics = useCallback(async () => {
-    try {
-      setError('');
-      const data = await api.adminGetMetrics();
-      setMetrics(data);
-    } catch (err: unknown) {
-      setError(api.getErrorMessage(err) || t('metrics.loadError'));
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [t]);
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchMetrics();
-    }, [fetchMetrics]),
-  );
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    fetchMetrics();
-  }, [fetchMetrics]);
 
   const handleClearFailedAuth = useCallback(() => {
     Alert.alert(
@@ -81,13 +58,13 @@ export default function MetricsScreen() {
           onPress: async () => {
             try {
               await api.adminClearFailedAuth();
-              fetchMetrics();
+              refetch();
             } catch {}
           },
         },
       ],
     );
-  }, [t, fetchMetrics]);
+  }, [t, refetch]);
 
   const totalRequests = metrics
     ? metrics.httpRequestMetrics.reduce((sum, m) => sum + m.count, 0)
@@ -102,11 +79,7 @@ export default function MetricsScreen() {
     : [];
 
   if (loading) {
-    return (
-      <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
+    return <LoadingScreen />;
   }
 
   return (
@@ -122,26 +95,18 @@ export default function MetricsScreen() {
       }
     >
       {error ? (
-        <TouchableOpacity
-          style={[styles.errorBox, { backgroundColor: colors.errorBackground }]}
-          onPress={fetchMetrics}
-          activeOpacity={0.7}
-          accessibilityRole="alert"
-          accessibilityLiveRegion="polite"
-          accessibilityLabel={`${error}. ${t('common.tapToRetry')}`}
-        >
-          <Ionicons name="alert-circle" size={18} color={colors.error} />
-          <View style={styles.errorContent}>
-            <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
-            <Text style={[styles.retryText, { color: colors.error }]}>{t('common.tapToRetry')}</Text>
-          </View>
-        </TouchableOpacity>
+        <AlertBanner
+          type="error"
+          message={error}
+          onRetry={refetch}
+          retryLabel={t('common.tapToRetry')}
+        />
       ) : null}
 
       {metrics && (
         <>
-          <View style={[styles.summaryRow]}>
-            <View style={[styles.summaryCard, { backgroundColor: colors.surface }]}>
+          <View style={styles.summaryRow}>
+            <Card style={styles.summaryCard}>
               <Ionicons name="swap-vertical-outline" size={24} color={colors.primary} />
               <Text style={[styles.summaryValue, { color: colors.text }]}>
                 {totalRequests}
@@ -149,8 +114,8 @@ export default function MetricsScreen() {
               <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>
                 {t('metrics.totalRequests')}
               </Text>
-            </View>
-            <View style={[styles.summaryCard, { backgroundColor: colors.surface }]}>
+            </Card>
+            <Card style={styles.summaryCard}>
               <Ionicons name="timer-outline" size={24} color={colors.primary} />
               <Text style={[styles.summaryValue, { color: colors.text }]}>
                 {avgResponseTime.toFixed(1)} {t('metrics.ms')}
@@ -158,36 +123,33 @@ export default function MetricsScreen() {
               <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>
                 {t('metrics.avgResponseTime')}
               </Text>
-            </View>
+            </Card>
           </View>
 
           {sortedMetrics.length === 0 ? (
-            <View style={styles.center}>
-              <Ionicons name="analytics-outline" size={48} color={colors.textSecondary} />
-              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                {t('metrics.noMetrics')}
-              </Text>
-            </View>
+            <EmptyState icon="analytics-outline" message={t('metrics.noMetrics')} />
           ) : (
             sortedMetrics.map((metric, index) => (
-              <View
+              <Card
                 key={`${metric.method}-${metric.uri}-${metric.status}-${index}`}
-                style={[styles.card, { backgroundColor: colors.surface }]}
+                style={{ overflow: 'hidden' }}
               >
                 <View style={styles.cardHeader}>
-                  <View style={[styles.methodBadge, { backgroundColor: getMethodColor(metric.method) + '20' }]}>
-                    <Text style={[styles.methodText, { color: getMethodColor(metric.method) }]}>
-                      {metric.method}
-                    </Text>
-                  </View>
+                  <Badge
+                    label={metric.method}
+                    color={getMethodColor(metric.method)}
+                    backgroundColor={getMethodColor(metric.method) + '20'}
+                    fontWeight="700"
+                  />
                   <Text style={[styles.uri, { color: colors.text }]} numberOfLines={1}>
                     {metric.uri}
                   </Text>
-                  <View style={[styles.statusBadge, { backgroundColor: metric.status.startsWith('2') ? colors.successBackground : colors.errorBackground }]}>
-                    <Text style={[styles.statusText, { color: metric.status.startsWith('2') ? colors.success : colors.error }]}>
-                      {metric.status}
-                    </Text>
-                  </View>
+                  <Badge
+                    label={metric.status}
+                    color={metric.status.startsWith('2') ? colors.success : colors.error}
+                    backgroundColor={metric.status.startsWith('2') ? colors.successBackground : colors.errorBackground}
+                    fontWeight="700"
+                  />
                 </View>
 
                 <View style={[styles.statsRow, { borderTopColor: colors.border }]}>
@@ -210,7 +172,7 @@ export default function MetricsScreen() {
                     <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('metrics.maxTime')}</Text>
                   </View>
                 </View>
-              </View>
+              </Card>
             ))
           )}
 
@@ -221,11 +183,13 @@ export default function MetricsScreen() {
                 <Text style={[styles.sectionTitle, { color: colors.text }]}>
                   {t('metrics.failedAuth.title')}
                 </Text>
-                <View style={[styles.countBadge, { backgroundColor: colors.errorBackground }]}>
-                  <Text style={[styles.countBadgeText, { color: colors.error }]}>
-                    {metrics.failedAuthAttempts.length}
-                  </Text>
-                </View>
+                <Badge
+                  label={String(metrics.failedAuthAttempts.length)}
+                  color={colors.error}
+                  backgroundColor={colors.errorBackground}
+                  size="md"
+                  fontWeight="700"
+                />
                 <TouchableOpacity
                   style={[styles.clearButton, { backgroundColor: colors.errorBackground }]}
                   onPress={handleClearFailedAuth}
@@ -236,24 +200,26 @@ export default function MetricsScreen() {
               </View>
 
               {metrics.failedAuthAttempts.map((attempt, index) => (
-                <View
+                <Card
                   key={`failed-${index}`}
-                  style={[styles.card, { backgroundColor: colors.surface }]}
+                  style={{ overflow: 'hidden' }}
                 >
                   <View style={styles.cardHeader}>
-                    <View style={[styles.methodBadge, { backgroundColor: getMethodColor(attempt.method) + '20' }]}>
-                      <Text style={[styles.methodText, { color: getMethodColor(attempt.method) }]}>
-                        {attempt.method}
-                      </Text>
-                    </View>
+                    <Badge
+                      label={attempt.method}
+                      color={getMethodColor(attempt.method)}
+                      backgroundColor={getMethodColor(attempt.method) + '20'}
+                      fontWeight="700"
+                    />
                     <Text style={[styles.uri, { color: colors.text }]} numberOfLines={1}>
                       {attempt.path}
                     </Text>
-                    <View style={[styles.statusBadge, { backgroundColor: colors.errorBackground }]}>
-                      <Text style={[styles.statusText, { color: colors.error }]}>
-                        {attempt.status}
-                      </Text>
-                    </View>
+                    <Badge
+                      label={String(attempt.status)}
+                      color={colors.error}
+                      backgroundColor={colors.errorBackground}
+                      fontWeight="700"
+                    />
                   </View>
 
                   <View style={[styles.failedAuthDetails, { borderTopColor: colors.border }]}>
@@ -276,7 +242,7 @@ export default function MetricsScreen() {
                       </Text>
                     </View>
                   </View>
-                </View>
+                </Card>
               ))}
             </>
           ) : metrics.failedAuthAttempts ? (
@@ -301,44 +267,15 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 12,
   },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
   summaryRow: {
     flexDirection: 'row',
     gap: 12,
   },
   summaryCard: {
     flex: 1,
-    borderRadius: 16,
     padding: 16,
     alignItems: 'center',
     gap: 6,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  summaryValue: {
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  summaryLabel: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  card: {
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-    overflow: 'hidden',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -346,28 +283,10 @@ const styles = StyleSheet.create({
     padding: 14,
     gap: 8,
   },
-  methodBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  methodText: {
-    fontSize: 11,
-    fontWeight: '700',
-  },
   uri: {
     fontSize: 14,
     fontWeight: '500',
     flex: 1,
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  statusText: {
-    fontSize: 11,
-    fontWeight: '700',
   },
   statsRow: {
     flexDirection: 'row',
@@ -397,28 +316,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
   },
-  errorBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderRadius: 12,
-    gap: 8,
-  },
-  errorContent: {
-    flex: 1,
-  },
-  errorText: {
-    fontSize: 14,
-  },
-  retryText: {
-    fontSize: 12,
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  emptyText: {
-    fontSize: 16,
-    marginTop: 12,
-  },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -429,15 +326,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     flex: 1,
-  },
-  countBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-  },
-  countBadgeText: {
-    fontSize: 12,
-    fontWeight: '700',
   },
   failedAuthDetails: {
     borderTopWidth: StyleSheet.hairlineWidth,

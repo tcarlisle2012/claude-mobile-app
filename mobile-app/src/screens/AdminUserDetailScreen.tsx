@@ -2,26 +2,22 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  ActivityIndicator,
   Switch,
   Alert,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
+import { LoadingScreen, AlertBanner, Card, Badge, Button, FormInput } from '../components';
+import type { AdminStackParamList } from '../navigation/types';
 import * as api from '../services/api';
-
-type AdminStackParamList = {
-  AdminUsers: undefined;
-  AdminUserDetail: { userId: number };
-};
 
 type EditFormFields = 'firstName' | 'lastName' | 'email';
 type EditFormState = Record<EditFormFields, string>;
@@ -180,11 +176,7 @@ export default function AdminUserDetailScreen() {
   };
 
   if (loading) {
-    return (
-      <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
+    return <LoadingScreen />;
   }
 
   if (!user) {
@@ -216,7 +208,7 @@ export default function AdminUserDetailScreen() {
     >
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         {/* User Header */}
-        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+        <Card style={styles.cardPadded}>
           <View style={styles.headerRow}>
             <View style={[styles.avatarLarge, { backgroundColor: colors.primaryLight }]}>
               <Text style={[styles.avatarLargeText, { color: colors.primary }]}>{initials}</Text>
@@ -230,11 +222,12 @@ export default function AdminUserDetailScreen() {
               </Text>
               <View style={styles.badges}>
                 {user.roles.map((role) => (
-                  <View key={role} style={[styles.badge, { backgroundColor: colors.primaryLight }]}>
-                    <Text style={[styles.badgeText, { color: colors.primary }]}>
-                      {role.replace('ROLE_', '')}
-                    </Text>
-                  </View>
+                  <Badge
+                    key={role}
+                    label={role.replace('ROLE_', '')}
+                    color={colors.primary}
+                    backgroundColor={colors.primaryLight}
+                  />
                 ))}
               </View>
             </View>
@@ -242,78 +235,42 @@ export default function AdminUserDetailScreen() {
           <Text style={[styles.createdAt, { color: colors.textSecondary }]}>
             Created: {new Date(user.createdAt).toLocaleDateString()}
           </Text>
-        </View>
+        </Card>
 
         {/* Messages */}
         {error ? (
-          <View
-            style={[styles.messageBox, { backgroundColor: colors.errorBackground }]}
-            accessibilityRole="alert"
-            accessibilityLiveRegion="polite"
-          >
-            <Ionicons name="alert-circle" size={18} color={colors.error} />
-            <Text style={[styles.messageText, { color: colors.error }]}>{error}</Text>
-          </View>
+          <AlertBanner type="error" message={error} style={styles.messageBanner} />
         ) : null}
         {success ? (
-          <View
-            style={[styles.messageBox, { backgroundColor: colors.successBackground }]}
-            accessibilityRole="alert"
-            accessibilityLiveRegion="polite"
-          >
-            <Ionicons name="checkmark-circle" size={18} color={colors.success} />
-            <Text style={[styles.messageText, { color: colors.success }]}>{success}</Text>
-          </View>
+          <AlertBanner type="success" message={success} style={styles.messageBanner} />
         ) : null}
 
         {/* Edit Profile */}
         <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('adminUserDetail.editProfile')}</Text>
-        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+        <Card style={styles.cardPadded}>
           {editFields.map((field) => (
-            <View key={field.key} style={styles.inputGroup}>
-              <Text style={[styles.label, { color: colors.textSecondary }]}>{field.label}</Text>
-              <View
-                style={[
-                  styles.inputRow,
-                  { borderColor: fieldErrors[field.key] ? colors.error : colors.border },
-                ]}
-              >
-                <Ionicons name={field.icon} size={18} color={colors.icon} style={styles.inputIcon} />
-                <TextInput
-                  style={[styles.input, { color: colors.text }]}
-                  value={form[field.key]}
-                  onChangeText={(v) => updateField(field.key, v)}
-                  keyboardType={field.keyboardType ?? 'default'}
-                  autoCapitalize={field.autoCapitalize ?? 'sentences'}
-                  autoCorrect={false}
-                  placeholderTextColor={colors.textSecondary}
-                />
-              </View>
-              {fieldErrors[field.key] ? (
-                <Text style={[styles.fieldError, { color: colors.error }]}>{fieldErrors[field.key]}</Text>
-              ) : null}
-            </View>
+            <FormInput
+              key={field.key}
+              label={field.label}
+              icon={field.icon}
+              value={form[field.key]}
+              onChangeText={(v) => updateField(field.key, v)}
+              error={fieldErrors[field.key]}
+              keyboardType={field.keyboardType}
+              autoCapitalize={field.autoCapitalize}
+            />
           ))}
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.primary, opacity: saving ? 0.6 : 1 }]}
+          <Button
+            title={t('adminUserDetail.saveChanges')}
             onPress={handleSave}
-            disabled={saving}
-            activeOpacity={0.8}
-            accessibilityRole="button"
-            accessibilityState={{ disabled: saving }}
-            accessibilityLabel={t('adminUserDetail.saveChanges')}
-          >
-            {saving ? (
-              <ActivityIndicator color={colors.buttonText} />
-            ) : (
-              <Text style={[styles.buttonText, { color: colors.buttonText }]}>{t('adminUserDetail.saveChanges')}</Text>
-            )}
-          </TouchableOpacity>
-        </View>
+            loading={saving}
+            style={styles.saveButton}
+          />
+        </Card>
 
         {/* Account Status */}
         <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('adminUserDetail.accountStatus')}</Text>
-        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+        <Card style={styles.cardPadded}>
           <View style={[styles.switchRow, { borderBottomColor: colors.border }]}>
             <View>
               <Text style={[styles.switchLabel, { color: colors.text }]}>{t('adminUserDetail.accountEnabled')}</Text>
@@ -342,11 +299,11 @@ export default function AdminUserDetailScreen() {
               accessibilityLabel={t('adminUserDetail.accountLocked')}
             />
           </View>
-        </View>
+        </Card>
 
         {/* Verification Token */}
         <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('adminUserDetail.verificationToken')}</Text>
-        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+        <Card style={styles.cardPadded}>
           {tokenLoading ? (
             <ActivityIndicator color={colors.primary} style={{ padding: 16 }} />
           ) : token ? (
@@ -367,40 +324,25 @@ export default function AdminUserDetailScreen() {
                   <Text style={[styles.tokenValue, { color: colors.text }]}>
                     {new Date(token.expiryDate).toLocaleString()}
                   </Text>
-                  <View
-                    style={[
-                      styles.badge,
-                      { backgroundColor: token.expired ? colors.errorBackground : colors.successBackground, marginLeft: 8 },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.badgeText,
-                        { color: token.expired ? colors.error : colors.success },
-                      ]}
-                    >
-                      {token.expired ? t('adminUserDetail.expired') : t('adminUserDetail.active')}
-                    </Text>
-                  </View>
+                  <Badge
+                    label={token.expired ? t('adminUserDetail.expired') : t('adminUserDetail.active')}
+                    color={token.expired ? colors.error : colors.success}
+                    backgroundColor={token.expired ? colors.errorBackground : colors.successBackground}
+                  />
                 </View>
               </View>
               <View style={styles.tokenActions}>
-                <TouchableOpacity
-                  style={[styles.outlineButton, { borderColor: colors.error }]}
+                <Button
+                  title={t('adminUserDetail.deleteToken')}
                   onPress={handleDeleteToken}
-                  activeOpacity={0.7}
-                >
-                  <Text style={[styles.outlineButtonText, { color: colors.error }]}>{t('adminUserDetail.deleteToken')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.outlineButton, { borderColor: colors.primary }]}
+                  variant="outline"
+                  style={{ borderColor: colors.error }}
+                />
+                <Button
+                  title={t('adminUserDetail.resendVerification')}
                   onPress={handleRegenerateToken}
-                  activeOpacity={0.7}
-                >
-                  <Text style={[styles.outlineButtonText, { color: colors.primary }]}>
-                    {t('adminUserDetail.resendVerification')}
-                  </Text>
-                </TouchableOpacity>
+                  variant="outline"
+                />
               </View>
             </>
           ) : (
@@ -408,33 +350,28 @@ export default function AdminUserDetailScreen() {
               <Text style={[styles.noTokenText, { color: colors.textSecondary }]}>
                 {t('adminUserDetail.noToken')}
               </Text>
-              <TouchableOpacity
-                style={[styles.outlineButton, { borderColor: colors.primary, alignSelf: 'flex-start' }]}
+              <Button
+                title={t('adminUserDetail.generateNewToken')}
                 onPress={handleRegenerateToken}
-                activeOpacity={0.7}
-              >
-                <Text style={[styles.outlineButtonText, { color: colors.primary }]}>
-                  {t('adminUserDetail.generateNewToken')}
-                </Text>
-              </TouchableOpacity>
+                variant="outline"
+                style={{ alignSelf: 'stretch' }}
+              />
             </>
           )}
-        </View>
+        </Card>
 
         {/* Danger Zone */}
         <Text style={[styles.sectionTitle, { color: colors.error }]}>{t('adminUserDetail.dangerZone')}</Text>
-        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.error, borderWidth: 1 }]}>
+        <Card style={[styles.cardPadded, { borderColor: colors.error, borderWidth: 1 }]}>
           <Text style={[styles.dangerHint, { color: colors.textSecondary }]}>
             {t('adminUserDetail.dangerDescription')}
           </Text>
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.error }]}
+          <Button
+            title={t('adminUserDetail.deleteUser')}
             onPress={handleDeleteUser}
-            activeOpacity={0.8}
-          >
-            <Text style={[styles.buttonText, { color: colors.buttonText }]}>{t('adminUserDetail.deleteUser')}</Text>
-          </TouchableOpacity>
-        </View>
+            variant="danger"
+          />
+        </Card>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -453,15 +390,9 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 40,
   },
-  card: {
-    borderRadius: 16,
+  cardPadded: {
     padding: 16,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
   },
   headerRow: {
     flexDirection: 'row',
@@ -495,39 +426,18 @@ const styles = StyleSheet.create({
     marginTop: 6,
     gap: 6,
   },
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  badgeText: {
-    fontSize: 11,
-    fontWeight: '600',
-  },
   createdAt: {
     fontSize: 13,
     marginTop: 12,
   },
-  messageBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderRadius: 12,
+  messageBanner: {
     marginBottom: 16,
-    gap: 8,
-  },
-  messageText: {
-    fontSize: 14,
-    flex: 1,
   },
   sectionTitle: {
     fontSize: 17,
     fontWeight: '600',
     marginBottom: 10,
     marginLeft: 4,
-  },
-  inputGroup: {
-    marginBottom: 16,
   },
   label: {
     fontSize: 12,
@@ -536,37 +446,8 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    height: 48,
-  },
-  inputIcon: {
-    marginRight: 8,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    height: 48,
-  },
-  fieldError: {
-    fontSize: 12,
+  saveButton: {
     marginTop: 4,
-    marginLeft: 4,
-  },
-  button: {
-    height: 48,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 4,
-  },
-  buttonText: {
-    fontSize: 15,
-    fontWeight: '600',
   },
   switchRow: {
     flexDirection: 'row',
@@ -594,21 +475,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 2,
+    gap: 8,
   },
   tokenActions: {
     flexDirection: 'row',
     gap: 10,
     marginTop: 4,
-  },
-  outlineButton: {
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-  },
-  outlineButtonText: {
-    fontSize: 13,
-    fontWeight: '600',
   },
   noTokenText: {
     fontSize: 14,
