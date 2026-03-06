@@ -33,7 +33,10 @@ export default function CustomDrawerContent(
     { label: t('drawer.home'), route: 'Home', icon: 'home-outline' },
     { label: t('drawer.settings'), route: 'Settings', icon: 'settings-outline' },
     ...(isAdmin
-      ? [{ label: t('drawer.users'), route: 'Users', icon: 'people-outline' as keyof typeof Ionicons.glyphMap }]
+      ? [
+          { label: t('drawer.users'), route: 'Users', icon: 'people-outline' as keyof typeof Ionicons.glyphMap },
+          { label: t('drawer.health'), route: 'Health', icon: 'pulse-outline' as keyof typeof Ionicons.glyphMap },
+        ]
       : []),
   ];
 

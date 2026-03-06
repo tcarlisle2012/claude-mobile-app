@@ -122,6 +122,34 @@ export async function clearToken(): Promise<void> {
   await AsyncStorage.removeItem(TOKEN_KEY);
 }
 
+// ---- Health types ----
+
+export interface HealthComponent {
+  status: string;
+  details?: Record<string, unknown>;
+}
+
+export interface HealthResponse {
+  status: string;
+  components: Record<string, HealthComponent>;
+}
+
+// ---- Metrics types ----
+
+export interface HttpRequestMetric {
+  method: string;
+  uri: string;
+  status: string;
+  count: number;
+  totalTimeMs: number;
+  meanTimeMs: number;
+  maxTimeMs: number;
+}
+
+export interface MetricsResponse {
+  httpRequestMetrics: HttpRequestMetric[];
+}
+
 // ---- Admin types ----
 
 export interface VerificationTokenDto {
@@ -198,4 +226,16 @@ export async function adminRegenerateToken(
   return request<VerificationTokenDto>(`/admin/users/${id}/token`, {
     method: 'POST',
   });
+}
+
+// ---- Health endpoints ----
+
+export async function adminGetHealth(): Promise<HealthResponse> {
+  return request<HealthResponse>('/admin/health');
+}
+
+// ---- Metrics endpoints ----
+
+export async function adminGetMetrics(): Promise<MetricsResponse> {
+  return request<MetricsResponse>('/admin/metrics');
 }
