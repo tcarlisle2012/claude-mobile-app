@@ -1,9 +1,11 @@
 package com.mobileapp.backend.controller;
 
+import com.mobileapp.backend.security.FailedAuthAttemptStore;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,9 +22,12 @@ import java.util.concurrent.TimeUnit;
 public class MetricsController {
 
     private final MeterRegistry meterRegistry;
+    private final FailedAuthAttemptStore failedAuthAttemptStore;
 
-    public MetricsController(MeterRegistry meterRegistry) {
+    public MetricsController(MeterRegistry meterRegistry,
+                             FailedAuthAttemptStore failedAuthAttemptStore) {
         this.meterRegistry = meterRegistry;
+        this.failedAuthAttemptStore = failedAuthAttemptStore;
     }
 
     @GetMapping("/metrics")
@@ -43,7 +48,23 @@ public class MetricsController {
 
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("httpRequestMetrics", httpRequestMetrics);
+        response.put("failedAuthAttempts", failedAuthAttemptStore.getRecentAttempts());
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/metrics/failed-auth")
+    public ResponseEntity<Void> clearFailedAuth() {
+        failedAuthAttemptStore.clear();
+
+        meterRegistry.find("http.server.requests").timers().stream()
+                .filter(timer -> {
+                    String status = getTag(timer, "status");
+                    return "401".equals(status) || "403".equals(status);
+                })
+                .toList()
+                .forEach(timer -> meterRegistry.remove(timer));
+
+        return ResponseEntity.noContent().build();
     }
 
     private static String getTag(Timer timer, String key) {

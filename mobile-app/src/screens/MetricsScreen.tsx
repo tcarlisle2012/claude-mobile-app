@@ -6,6 +6,8 @@ import {
   StyleSheet,
   ActivityIndicator,
   RefreshControl,
+  TouchableOpacity,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -30,7 +32,7 @@ const getMethodColor = (method: string): string => {
     case 'GET': return '#2563EB';
     case 'POST': return '#16A34A';
     case 'PUT': return '#CA8A04';
-    case 'DELETE': return '#DC2626';
+    case 'DELETE': return '#E87171';
     default: return '#6B7280';
   }
 };
@@ -66,6 +68,26 @@ export default function MetricsScreen() {
     setRefreshing(true);
     fetchMetrics();
   }, [fetchMetrics]);
+
+  const handleClearFailedAuth = useCallback(() => {
+    Alert.alert(
+      t('metrics.failedAuth.title'),
+      t('metrics.failedAuth.clearConfirm'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('metrics.failedAuth.clear'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await api.adminClearFailedAuth();
+              fetchMetrics();
+            } catch {}
+          },
+        },
+      ],
+    );
+  }, [t, fetchMetrics]);
 
   const totalRequests = metrics
     ? metrics.httpRequestMetrics.reduce((sum, m) => sum + m.count, 0)
@@ -181,6 +203,80 @@ export default function MetricsScreen() {
               </View>
             ))
           )}
+
+          {metrics.failedAuthAttempts && metrics.failedAuthAttempts.length > 0 ? (
+            <>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="shield-outline" size={20} color="#DC2626" />
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                  {t('metrics.failedAuth.title')}
+                </Text>
+                <View style={[styles.countBadge, { backgroundColor: '#FEE2E2' }]}>
+                  <Text style={styles.countBadgeText}>
+                    {metrics.failedAuthAttempts.length}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={[styles.clearButton, { backgroundColor: '#FEE2E2' }]}
+                  onPress={handleClearFailedAuth}
+                >
+                  <Ionicons name="trash-outline" size={14} color="#DC2626" />
+                  <Text style={styles.clearButtonText}>{t('metrics.failedAuth.clear')}</Text>
+                </TouchableOpacity>
+              </View>
+
+              {metrics.failedAuthAttempts.map((attempt, index) => (
+                <View
+                  key={`failed-${index}`}
+                  style={[styles.card, { backgroundColor: colors.surface }]}
+                >
+                  <View style={styles.cardHeader}>
+                    <View style={[styles.methodBadge, { backgroundColor: getMethodColor(attempt.method) + '20' }]}>
+                      <Text style={[styles.methodText, { color: getMethodColor(attempt.method) }]}>
+                        {attempt.method}
+                      </Text>
+                    </View>
+                    <Text style={[styles.uri, { color: colors.text }]} numberOfLines={1}>
+                      {attempt.path}
+                    </Text>
+                    <View style={[styles.statusBadge, { backgroundColor: '#FEE2E2' }]}>
+                      <Text style={[styles.statusText, { color: '#DC2626' }]}>
+                        {attempt.status}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={[styles.failedAuthDetails, { borderTopColor: colors.border }]}>
+                    <View style={styles.detailRow}>
+                      <Ionicons name="globe-outline" size={14} color={colors.textSecondary} />
+                      <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>
+                        {t('metrics.failedAuth.ipAddress')}
+                      </Text>
+                      <Text style={[styles.detailValue, { color: colors.text }]}>
+                        {attempt.ipAddress}
+                      </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Ionicons name="time-outline" size={14} color={colors.textSecondary} />
+                      <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>
+                        {t('metrics.failedAuth.time')}
+                      </Text>
+                      <Text style={[styles.detailValue, { color: colors.text }]}>
+                        {new Date(attempt.timestamp).toLocaleString()}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              ))}
+            </>
+          ) : metrics.failedAuthAttempts ? (
+            <View style={styles.sectionHeader}>
+              <Ionicons name="shield-checkmark-outline" size={20} color="#16A34A" />
+              <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+                {t('metrics.failedAuth.noAttempts')}
+              </Text>
+            </View>
+          ) : null}
         </>
       )}
     </ScrollView>
@@ -306,5 +402,60 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     marginTop: 12,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingTop: 8,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    flex: 1,
+  },
+  countBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  countBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#DC2626',
+  },
+  failedAuthDetails: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    gap: 6,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  detailLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  detailValue: {
+    fontSize: 13,
+    fontWeight: '600',
+    flex: 1,
+    textAlign: 'right',
+  },
+  clearButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    gap: 4,
+  },
+  clearButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#DC2626',
   },
 });

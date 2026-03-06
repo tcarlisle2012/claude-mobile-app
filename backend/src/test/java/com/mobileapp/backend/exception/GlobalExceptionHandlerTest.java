@@ -1,12 +1,15 @@
 package com.mobileapp.backend.exception;
 
 import com.mobileapp.backend.dto.ApiResponse;
+import com.mobileapp.backend.dto.FailedAuthAttempt;
+import com.mobileapp.backend.security.FailedAuthAttemptStore;
 import com.mobileapp.backend.util.Messages;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -16,6 +19,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,7 +31,15 @@ import static org.mockito.Mockito.mock;
 class GlobalExceptionHandlerTest {
 
     private final Messages messages = mock(Messages.class);
-    private final GlobalExceptionHandler handler = new GlobalExceptionHandler(messages);
+    private final FailedAuthAttemptStore store = new FailedAuthAttemptStore();
+    private final GlobalExceptionHandler handler = new GlobalExceptionHandler(messages, store);
+
+    private MockHttpServletRequest mockRequest() {
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/auth/login");
+        request.setServletPath("/api/auth/login");
+        request.setRemoteAddr("192.168.1.10");
+        return request;
+    }
 
     @BeforeEach
     void setUp() {
@@ -49,7 +61,7 @@ class GlobalExceptionHandlerTest {
     @Test
     void handleBadCredentials_returns401() {
         ResponseEntity<ApiResponse> response = handler.handleBadCredentials(
-                new BadCredentialsException("bad"));
+                new BadCredentialsException("bad"), mockRequest());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(response.getBody().isSuccess()).isFalse();
@@ -57,30 +69,67 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    void handleBadCredentials_recordsAttemptWithStatus401() {
+        handler.handleBadCredentials(new BadCredentialsException("bad"), mockRequest());
+
+        List<FailedAuthAttempt> attempts = store.getRecentAttempts();
+        assertThat(attempts).hasSize(1);
+        assertThat(attempts.get(0).getStatus()).isEqualTo(401);
+        assertThat(attempts.get(0).getIpAddress()).isEqualTo("192.168.1.10");
+    }
+
+    @Test
     void handleDisabled_returns403() {
         ResponseEntity<ApiResponse> response = handler.handleDisabled(
-                new DisabledException("disabled"));
+                new DisabledException("disabled"), mockRequest());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(response.getBody().getMessage()).isEqualTo("auth.error.account-not-verified");
     }
 
     @Test
+    void handleDisabled_recordsAttemptWithStatus403() {
+        handler.handleDisabled(new DisabledException("disabled"), mockRequest());
+
+        List<FailedAuthAttempt> attempts = store.getRecentAttempts();
+        assertThat(attempts).hasSize(1);
+        assertThat(attempts.get(0).getStatus()).isEqualTo(403);
+    }
+
+    @Test
     void handleLocked_returns403() {
         ResponseEntity<ApiResponse> response = handler.handleLocked(
-                new LockedException("locked"));
+                new LockedException("locked"), mockRequest());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(response.getBody().getMessage()).isEqualTo("auth.error.account-locked");
     }
 
     @Test
+    void handleLocked_recordsAttemptWithStatus403() {
+        handler.handleLocked(new LockedException("locked"), mockRequest());
+
+        List<FailedAuthAttempt> attempts = store.getRecentAttempts();
+        assertThat(attempts).hasSize(1);
+        assertThat(attempts.get(0).getStatus()).isEqualTo(403);
+    }
+
+    @Test
     void handleAccessDenied_returns403() {
         ResponseEntity<ApiResponse> response = handler.handleAccessDenied(
-                new AccessDeniedException("denied"));
+                new AccessDeniedException("denied"), mockRequest());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(response.getBody().getMessage()).isEqualTo("auth.error.access-denied");
+    }
+
+    @Test
+    void handleAccessDenied_recordsAttemptWithStatus403() {
+        handler.handleAccessDenied(new AccessDeniedException("denied"), mockRequest());
+
+        List<FailedAuthAttempt> attempts = store.getRecentAttempts();
+        assertThat(attempts).hasSize(1);
+        assertThat(attempts.get(0).getStatus()).isEqualTo(403);
     }
 
     @Test

@@ -1,7 +1,9 @@
 package com.mobileapp.backend.exception;
 
 import com.mobileapp.backend.dto.ApiResponse;
+import com.mobileapp.backend.security.FailedAuthAttemptStore;
 import com.mobileapp.backend.util.Messages;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -25,9 +27,12 @@ public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     private final Messages messages;
+    private final FailedAuthAttemptStore failedAuthAttemptStore;
 
-    public GlobalExceptionHandler(Messages messages) {
+    public GlobalExceptionHandler(Messages messages,
+                                  FailedAuthAttemptStore failedAuthAttemptStore) {
         this.messages = messages;
+        this.failedAuthAttemptStore = failedAuthAttemptStore;
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -42,25 +47,33 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiResponse> handleBadCredentials(BadCredentialsException ex) {
+    public ResponseEntity<ApiResponse> handleBadCredentials(BadCredentialsException ex,
+                                                            HttpServletRequest request) {
+        failedAuthAttemptStore.record(request, HttpStatus.UNAUTHORIZED.value());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.error(messages.get("auth.error.bad-credentials")));
     }
 
     @ExceptionHandler(DisabledException.class)
-    public ResponseEntity<ApiResponse> handleDisabled(DisabledException ex) {
+    public ResponseEntity<ApiResponse> handleDisabled(DisabledException ex,
+                                                      HttpServletRequest request) {
+        failedAuthAttemptStore.record(request, HttpStatus.FORBIDDEN.value());
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(ApiResponse.error(messages.get("auth.error.account-not-verified")));
     }
 
     @ExceptionHandler(LockedException.class)
-    public ResponseEntity<ApiResponse> handleLocked(LockedException ex) {
+    public ResponseEntity<ApiResponse> handleLocked(LockedException ex,
+                                                    HttpServletRequest request) {
+        failedAuthAttemptStore.record(request, HttpStatus.FORBIDDEN.value());
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(ApiResponse.error(messages.get("auth.error.account-locked")));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiResponse> handleAccessDenied(AccessDeniedException ex) {
+    public ResponseEntity<ApiResponse> handleAccessDenied(AccessDeniedException ex,
+                                                          HttpServletRequest request) {
+        failedAuthAttemptStore.record(request, HttpStatus.FORBIDDEN.value());
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(ApiResponse.error(messages.get("auth.error.access-denied")));
     }

@@ -28,7 +28,7 @@ function mockResponse(data: any, ok = true, status = 200) {
   mockFetch.mockResolvedValueOnce({
     ok,
     status,
-    json: async () => data,
+    text: async () => JSON.stringify(data),
   });
 }
 

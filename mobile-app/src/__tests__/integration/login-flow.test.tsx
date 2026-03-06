@@ -17,7 +17,7 @@ function mockResponse(data: any, ok = true) {
   mockFetch.mockResolvedValueOnce({
     ok,
     status: ok ? 200 : 401,
-    json: async () => data,
+    text: async () => JSON.stringify(data),
   });
 }
 
@@ -147,7 +147,7 @@ describe('Login flow integration', () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 401,
-      json: async () => ({ success: false, message: 'Unauthorized' }),
+      text: async () => JSON.stringify({ success: false, message: 'Unauthorized' }),
     });
 
     const { getByTestId } = render(<TestApp />);
