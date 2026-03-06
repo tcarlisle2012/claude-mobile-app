@@ -11,6 +11,7 @@ import RegisterScreen from '../screens/RegisterScreen';
 import AdminUsersScreen from '../screens/AdminUsersScreen';
 import AdminUserDetailScreen from '../screens/AdminUserDetailScreen';
 import HealthScreen from '../screens/HealthScreen';
+import MetricsScreen from '../screens/MetricsScreen';
 import CustomDrawerContent from './CustomDrawerContent';
 import { useTheme } from '../theme/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -123,6 +124,9 @@ function MainNavigator() {
       )}
       {isAdmin && (
         <Drawer.Screen name="Health" component={HealthScreen} />
+      )}
+      {isAdmin && (
+        <Drawer.Screen name="Metrics" component={MetricsScreen} />
       )}
     </Drawer.Navigator>
   );

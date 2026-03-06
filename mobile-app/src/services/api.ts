@@ -149,10 +149,32 @@ export interface UpdateUserRequest {
   email: string;
 }
 
+// ---- Metrics types ----
+
+export interface HttpRequestMetric {
+  method: string;
+  uri: string;
+  status: string;
+  count: number;
+  totalTimeMs: number;
+  meanTimeMs: number;
+  maxTimeMs: number;
+}
+
+export interface MetricsResponse {
+  httpRequestMetrics: HttpRequestMetric[];
+}
+
 // ---- Health endpoints ----
 
 export async function adminGetHealth(): Promise<HealthResponse> {
   return request<HealthResponse>('/admin/health');
+}
+
+// ---- Metrics endpoints ----
+
+export async function adminGetMetrics(): Promise<MetricsResponse> {
+  return request<MetricsResponse>('/admin/metrics');
 }
 
 // ---- Admin endpoints ----

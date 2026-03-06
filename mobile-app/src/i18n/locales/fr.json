@@ -129,11 +129,23 @@
     "settings": "Param\u00e8tres",
     "users": "Utilisateurs",
     "health": "Sant\u00e9",
+    "metrics": "M\u00e9triques",
     "signOut": "Se d\u00e9connecter"
+  },
+  "metrics": {
+    "totalRequests": "Total des requ\u00eates",
+    "avgResponseTime": "Temps moyen",
+    "noMetrics": "Aucune m\u00e9trique de requ\u00eate enregistr\u00e9e",
+    "loadError": "\u00c9chec du chargement des m\u00e9triques",
+    "count": "Requ\u00eates",
+    "avgTime": "Temps moy.",
+    "maxTime": "Temps max.",
+    "ms": "ms"
   },
   "navigation": {
     "users": "Utilisateurs",
     "userDetails": "D\u00e9tails de l'utilisateur",
-    "health": "Sant\u00e9"
+    "health": "Sant\u00e9",
+    "metrics": "M\u00e9triques"
   }
 }

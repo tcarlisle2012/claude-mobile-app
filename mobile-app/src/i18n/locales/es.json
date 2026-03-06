@@ -129,11 +129,23 @@
     "settings": "Configuraci\u00f3n",
     "users": "Usuarios",
     "health": "Salud",
+    "metrics": "M\u00e9tricas",
     "signOut": "Cerrar sesi\u00f3n"
+  },
+  "metrics": {
+    "totalRequests": "Total de solicitudes",
+    "avgResponseTime": "Tiempo promedio",
+    "noMetrics": "No se han registrado m\u00e9tricas de solicitudes",
+    "loadError": "Error al cargar las m\u00e9tricas",
+    "count": "Solicitudes",
+    "avgTime": "Tiempo prom.",
+    "maxTime": "Tiempo m\u00e1x.",
+    "ms": "ms"
   },
   "navigation": {
     "users": "Usuarios",
     "userDetails": "Detalles del usuario",
-    "health": "Salud"
+    "health": "Salud",
+    "metrics": "M\u00e9tricas"
   }
 }

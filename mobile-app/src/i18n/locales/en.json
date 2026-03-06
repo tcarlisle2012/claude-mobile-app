@@ -129,11 +129,23 @@
     "settings": "Settings",
     "users": "Users",
     "health": "Health",
+    "metrics": "Metrics",
     "signOut": "Sign Out"
+  },
+  "metrics": {
+    "totalRequests": "Total Requests",
+    "avgResponseTime": "Avg Response",
+    "noMetrics": "No request metrics recorded yet",
+    "loadError": "Failed to load metrics",
+    "count": "Requests",
+    "avgTime": "Avg Time",
+    "maxTime": "Max Time",
+    "ms": "ms"
   },
   "navigation": {
     "users": "Users",
     "userDetails": "User Details",
-    "health": "Health"
+    "health": "Health",
+    "metrics": "Metrics"
   }
 }
