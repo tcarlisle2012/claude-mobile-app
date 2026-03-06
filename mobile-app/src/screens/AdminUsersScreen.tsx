@@ -10,7 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
-import { LoadingScreen, AlertBanner, Badge, EmptyState } from '../components';
+import { LoadingScreen, AlertBanner, Badge, EmptyState, PageContainer } from '../components';
 import useApiQuery from '../hooks/useApiQuery';
 import * as api from '../services/api';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -81,6 +81,7 @@ export default function AdminUsersScreen({ navigation }: Props) {
   }
 
   return (
+    <PageContainer>
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {error ? (
         <AlertBanner
@@ -108,6 +109,7 @@ export default function AdminUsersScreen({ navigation }: Props) {
         }
       />
     </View>
+    </PageContainer>
   );
 }
 

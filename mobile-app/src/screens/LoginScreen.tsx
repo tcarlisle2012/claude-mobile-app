@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { AlertBanner, FormInput, Button } from '../components';
+import { AlertBanner, FormInput, Button, PageContainer } from '../components';
 import { getErrorMessage } from '../services/api';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { AuthStackParamList } from '../navigation/types';
@@ -52,6 +52,7 @@ export default function LoginScreen({ navigation }: Props) {
   };
 
   return (
+    <PageContainer>
     <KeyboardAvoidingView
       style={[styles.root, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -117,6 +118,7 @@ export default function LoginScreen({ navigation }: Props) {
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
+    </PageContainer>
   );
 }
 

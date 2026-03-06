@@ -2,23 +2,25 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
-import { Card } from '../components';
+import { Card, PageContainer } from '../components';
 
 export default function HomeScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation();
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Card style={styles.card}>
-        <Text style={[styles.greeting, { color: colors.primary }]}>
-          {t('home.greeting')}
-        </Text>
-        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-          {t('home.subtitle')}
-        </Text>
-      </Card>
-    </View>
+    <PageContainer>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Card style={styles.card}>
+          <Text style={[styles.greeting, { color: colors.primary }]}>
+            {t('home.greeting')}
+          </Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+            {t('home.subtitle')}
+          </Text>
+        </Card>
+      </View>
+    </PageContainer>
   );
 }
 

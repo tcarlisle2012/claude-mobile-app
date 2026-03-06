@@ -11,7 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
-import { LoadingScreen, AlertBanner, Card, Badge, EmptyState } from '../components';
+import { LoadingScreen, AlertBanner, Card, Badge, EmptyState, PageContainer } from '../components';
 import useApiQuery from '../hooks/useApiQuery';
 import * as api from '../services/api';
 
@@ -83,6 +83,7 @@ export default function MetricsScreen() {
   }
 
   return (
+    <PageContainer>
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.content}
@@ -256,6 +257,7 @@ export default function MetricsScreen() {
         </>
       )}
     </ScrollView>
+    </PageContainer>
   );
 }
 

@@ -15,6 +15,7 @@ import MetricsScreen from '../screens/MetricsScreen';
 import CustomDrawerContent from './CustomDrawerContent';
 import { useTheme } from '../theme/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { useBreakpoint } from '../hooks/useBreakpoint';
 import type { AuthStackParamList, AdminStackParamList, DrawerParamList } from './types';
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
@@ -86,6 +87,7 @@ function MainNavigator() {
   const { colors, isDark } = useTheme();
   const { user } = useAuth();
   const { t } = useTranslation();
+  const { isDesktop } = useBreakpoint();
   const isAdmin = user?.roles?.includes('ROLE_ADMIN') ?? false;
 
   return (
@@ -104,19 +106,22 @@ function MainNavigator() {
           fontWeight: '600',
           fontSize: 17,
         },
-        headerLeft: () => (
-          <TouchableOpacity
-            onPress={() => navigation.toggleDrawer()}
-            style={styles.menuButton}
-            activeOpacity={0.6}
-            accessibilityRole="button"
-            accessibilityLabel={t('navigation.openMenu')}
-          >
-            <Ionicons name="menu" size={24} color={colors.text} />
-          </TouchableOpacity>
-        ),
-        drawerType: 'front',
-        overlayColor: colors.overlay,
+        headerLeft: isDesktop
+          ? () => null
+          : () => (
+              <TouchableOpacity
+                onPress={() => navigation.toggleDrawer()}
+                style={styles.menuButton}
+                activeOpacity={0.6}
+                accessibilityRole="button"
+                accessibilityLabel={t('navigation.openMenu')}
+              >
+                <Ionicons name="menu" size={24} color={colors.text} />
+              </TouchableOpacity>
+            ),
+        drawerType: isDesktop ? 'permanent' : 'front',
+        drawerStyle: isDesktop ? { width: 280 } : undefined,
+        overlayColor: isDesktop ? 'transparent' : colors.overlay,
       })}
     >
       <Drawer.Screen name="Home" component={HomeScreen} />

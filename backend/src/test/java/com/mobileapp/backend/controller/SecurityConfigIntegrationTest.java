@@ -127,7 +127,7 @@ class SecurityConfigIntegrationTest {
     void corsHeaders_present() throws Exception {
         mockMvc.perform(get("/api/auth/verify")
                         .param("token", "test")
-                        .header("Origin", "http://localhost:3000"))
+                        .header("Origin", "http://localhost:8081"))
                 .andExpect(header().exists("Access-Control-Allow-Origin"));
     }
 
