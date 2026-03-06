@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
-import { Card } from '../components';
+import { Card, PageContainer } from '../components';
 import { changeLanguage, resetToDeviceLanguage, isUsingSystemLanguage, LANGUAGES, getCurrentLanguage } from '../i18n/i18n';
 
 export default function SettingsScreen() {
@@ -21,6 +21,7 @@ export default function SettingsScreen() {
   ];
 
   return (
+    <PageContainer>
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Text style={[styles.heading, { color: colors.text }]}>{t('settings.appearance')}</Text>
       <Card style={styles.card}>
@@ -132,6 +133,7 @@ export default function SettingsScreen() {
         ))}
       </Card>
     </View>
+    </PageContainer>
   );
 }
 

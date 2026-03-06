@@ -48,6 +48,8 @@ spring:
 # ─── Application Settings ──────────────────────────────────────────
 app:
   base-url: http://localhost:8080
+  cors:
+    allowed-origins: http://localhost:8081
 
   jwt:
     # Base64-encoded 512-bit secret key (CHANGE IN PRODUCTION!)

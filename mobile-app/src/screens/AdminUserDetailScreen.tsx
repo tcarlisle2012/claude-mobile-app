@@ -16,7 +16,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
-import { LoadingScreen, AlertBanner, Card, Badge, Button, FormInput } from '../components';
+import { LoadingScreen, AlertBanner, Card, Badge, Button, FormInput, PageContainer } from '../components';
 import type { AdminStackParamList } from '../navigation/types';
 import * as api from '../services/api';
 
@@ -203,6 +203,7 @@ export default function AdminUserDetailScreen() {
   ];
 
   return (
+    <PageContainer>
     <KeyboardAvoidingView
       style={[styles.root, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -375,6 +376,7 @@ export default function AdminUserDetailScreen() {
         </Card>
       </ScrollView>
     </KeyboardAvoidingView>
+    </PageContainer>
   );
 }
 

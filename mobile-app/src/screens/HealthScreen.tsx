@@ -11,7 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
-import { LoadingScreen, AlertBanner, Badge, EmptyState } from '../components';
+import { LoadingScreen, AlertBanner, Badge, EmptyState, PageContainer } from '../components';
 import useApiQuery from '../hooks/useApiQuery';
 import type { DrawerParamList } from '../navigation/types';
 import * as api from '../services/api';
@@ -75,6 +75,7 @@ export default function HealthScreen() {
   }
 
   return (
+    <PageContainer>
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.content}
@@ -199,6 +200,7 @@ export default function HealthScreen() {
         </>
       )}
     </ScrollView>
+    </PageContainer>
   );
 }
 
