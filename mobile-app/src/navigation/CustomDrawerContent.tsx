@@ -108,8 +108,8 @@ export default function CustomDrawerContent(
           onPress={logout}
           activeOpacity={0.6}
         >
-          <Ionicons name="log-out-outline" size={22} color="#DC2626" />
-          <Text style={styles.logoutLabel}>{t('drawer.signOut')}</Text>
+          <Ionicons name="log-out-outline" size={22} color={colors.error} />
+          <Text style={[styles.logoutLabel, { color: colors.error }]}>{t('drawer.signOut')}</Text>
         </TouchableOpacity>
       </View>
     </DrawerContentScrollView>
@@ -180,7 +180,6 @@ const styles = StyleSheet.create({
   logoutLabel: {
     fontSize: 15,
     marginLeft: 14,
-    color: '#DC2626',
     fontWeight: '500',
   },
 });

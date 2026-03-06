@@ -72,12 +72,12 @@ export default function LoginScreen({ navigation }: Props) {
 
         {error ? (
           <View
-            style={[styles.errorBox, { backgroundColor: '#FEE2E2' }]}
+            style={[styles.errorBox, { backgroundColor: colors.errorBackground }]}
             accessibilityRole="alert"
             accessibilityLiveRegion="polite"
           >
-            <Ionicons name="alert-circle" size={18} color="#DC2626" />
-            <Text style={styles.errorText}>{error}</Text>
+            <Ionicons name="alert-circle" size={18} color={colors.error} />
+            <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
           </View>
         ) : null}
 
@@ -142,9 +142,9 @@ export default function LoginScreen({ navigation }: Props) {
             accessibilityLabel={t('login.submitButton')}
           >
             {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color={colors.buttonText} />
             ) : (
-              <Text style={styles.buttonText}>{t('login.submitButton')}</Text>
+              <Text style={[styles.buttonText, { color: colors.buttonText }]}>{t('login.submitButton')}</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -201,7 +201,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   errorText: {
-    color: '#DC2626',
     fontSize: 14,
     flex: 1,
   },
@@ -252,7 +251,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   buttonText: {
-    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },

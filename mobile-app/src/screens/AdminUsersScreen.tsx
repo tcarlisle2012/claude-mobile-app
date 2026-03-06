@@ -80,21 +80,21 @@ export default function AdminUsersScreen({ navigation }: Props) {
             <View
               style={[
                 styles.badge,
-                { backgroundColor: item.enabled ? '#DCFCE7' : '#FEE2E2' },
+                { backgroundColor: item.enabled ? colors.successBackground : colors.errorBackground },
               ]}
             >
               <Text
                 style={[
                   styles.badgeText,
-                  { color: item.enabled ? '#16A34A' : '#DC2626' },
+                  { color: item.enabled ? colors.success : colors.error },
                 ]}
               >
                 {item.enabled ? t('adminUsers.enabled') : t('adminUsers.disabled')}
               </Text>
             </View>
             {!item.accountNonLocked && (
-              <View style={[styles.badge, { backgroundColor: '#FEE2E2' }]}>
-                <Text style={[styles.badgeText, { color: '#DC2626' }]}>{t('adminUsers.locked')}</Text>
+              <View style={[styles.badge, { backgroundColor: colors.errorBackground }]}>
+                <Text style={[styles.badgeText, { color: colors.error }]}>{t('adminUsers.locked')}</Text>
               </View>
             )}
             {isAdmin && (
@@ -121,17 +121,17 @@ export default function AdminUsersScreen({ navigation }: Props) {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {error ? (
         <TouchableOpacity
-          style={[styles.errorBox, { backgroundColor: '#FEE2E2' }]}
+          style={[styles.errorBox, { backgroundColor: colors.errorBackground }]}
           onPress={fetchUsers}
           activeOpacity={0.7}
           accessibilityRole="alert"
           accessibilityLiveRegion="polite"
           accessibilityLabel={`${error}. ${t('common.tapToRetry')}`}
         >
-          <Ionicons name="alert-circle" size={18} color="#DC2626" />
+          <Ionicons name="alert-circle" size={18} color={colors.error} />
           <View style={styles.errorContent}>
-            <Text style={styles.errorText}>{error}</Text>
-            <Text style={styles.retryText}>{t('common.tapToRetry')}</Text>
+            <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
+            <Text style={[styles.retryText, { color: colors.error }]}>{t('common.tapToRetry')}</Text>
           </View>
         </TouchableOpacity>
       ) : null}
@@ -235,11 +235,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   errorText: {
-    color: '#DC2626',
     fontSize: 14,
   },
   retryText: {
-    color: '#DC2626',
     fontSize: 12,
     fontWeight: '600',
     marginTop: 2,

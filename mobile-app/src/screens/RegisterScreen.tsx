@@ -134,12 +134,12 @@ export default function RegisterScreen({ navigation }: Props) {
 
         {error ? (
           <View
-            style={[styles.errorBox, { backgroundColor: '#FEE2E2' }]}
+            style={[styles.errorBox, { backgroundColor: colors.errorBackground }]}
             accessibilityRole="alert"
             accessibilityLiveRegion="polite"
           >
-            <Ionicons name="alert-circle" size={18} color="#DC2626" />
-            <Text style={styles.errorText}>{error}</Text>
+            <Ionicons name="alert-circle" size={18} color={colors.error} />
+            <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
           </View>
         ) : null}
 
@@ -150,7 +150,7 @@ export default function RegisterScreen({ navigation }: Props) {
               <View
                 style={[
                   styles.inputRow,
-                  { borderColor: fieldErrors[field.key] ? '#DC2626' : colors.border },
+                  { borderColor: fieldErrors[field.key] ? colors.error : colors.border },
                 ]}
               >
                 <Ionicons name={field.icon} size={18} color={colors.icon} style={styles.inputIcon} />
@@ -192,7 +192,7 @@ export default function RegisterScreen({ navigation }: Props) {
                 )}
               </View>
               {fieldErrors[field.key] ? (
-                <Text style={styles.fieldError}>{fieldErrors[field.key]}</Text>
+                <Text style={[styles.fieldError, { color: colors.error }]}>{fieldErrors[field.key]}</Text>
               ) : null}
             </View>
           ))}
@@ -207,9 +207,9 @@ export default function RegisterScreen({ navigation }: Props) {
             accessibilityLabel={t('register.submitButton')}
           >
             {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color={colors.buttonText} />
             ) : (
-              <Text style={styles.buttonText}>{t('register.submitButton')}</Text>
+              <Text style={[styles.buttonText, { color: colors.buttonText }]}>{t('register.submitButton')}</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -266,7 +266,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   errorText: {
-    color: '#DC2626',
     fontSize: 14,
     flex: 1,
   },
@@ -310,7 +309,6 @@ const styles = StyleSheet.create({
     marginRight: -4,
   },
   fieldError: {
-    color: '#DC2626',
     fontSize: 12,
     marginTop: 4,
     marginLeft: 4,
@@ -323,7 +321,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   buttonText: {
-    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },

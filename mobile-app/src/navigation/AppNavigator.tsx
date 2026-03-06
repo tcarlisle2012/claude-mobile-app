@@ -115,7 +115,7 @@ function MainNavigator() {
           </TouchableOpacity>
         ),
         drawerType: 'front',
-        overlayColor: isDark ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.3)',
+        overlayColor: colors.overlay,
       })}
     >
       <Drawer.Screen name="Home" component={HomeScreen} />

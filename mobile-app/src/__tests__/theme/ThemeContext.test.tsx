@@ -63,6 +63,19 @@ describe('colors.ts', () => {
       'drawerActive',
       'drawerActiveBackground',
       'statusBar',
+      'error',
+      'errorBackground',
+      'success',
+      'successBackground',
+      'warning',
+      'warningBackground',
+      'buttonText',
+      'overlay',
+      'methodGet',
+      'methodPost',
+      'methodPut',
+      'methodDelete',
+      'methodDefault',
     ];
     for (const key of expectedKeys) {
       expect(LightTheme).toHaveProperty(key);
