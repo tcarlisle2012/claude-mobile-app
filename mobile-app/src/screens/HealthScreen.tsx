@@ -5,48 +5,26 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
   RefreshControl,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
+import { LoadingScreen, AlertBanner, Badge, EmptyState } from '../components';
+import useApiQuery from '../hooks/useApiQuery';
 import * as api from '../services/api';
 
 export default function HealthScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const navigation = useNavigation<any>();
-  const [health, setHealth] = useState<api.HealthResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState('');
   const [expandedComponents, setExpandedComponents] = useState<Set<string>>(new Set());
 
-  const fetchHealth = useCallback(async () => {
-    try {
-      setError('');
-      const data = await api.adminGetHealth();
-      setHealth(data);
-    } catch (err: unknown) {
-      setError(api.getErrorMessage(err) || t('health.loadError'));
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [t]);
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchHealth();
-    }, [fetchHealth]),
+  const { data: health, loading, error, refreshing, onRefresh, refetch } = useApiQuery(
+    useCallback(() => api.adminGetHealth(), []),
+    t('health.loadError'),
   );
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    fetchHealth();
-  }, [fetchHealth]);
 
   const toggleExpanded = (key: string) => {
     setExpandedComponents((prev) => {
@@ -92,11 +70,7 @@ export default function HealthScreen() {
   };
 
   if (loading) {
-    return (
-      <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
+    return <LoadingScreen />;
   }
 
   return (
@@ -112,20 +86,12 @@ export default function HealthScreen() {
       }
     >
       {error ? (
-        <TouchableOpacity
-          style={[styles.errorBox, { backgroundColor: colors.errorBackground }]}
-          onPress={fetchHealth}
-          activeOpacity={0.7}
-          accessibilityRole="alert"
-          accessibilityLiveRegion="polite"
-          accessibilityLabel={`${error}. ${t('common.tapToRetry')}`}
-        >
-          <Ionicons name="alert-circle" size={18} color={colors.error} />
-          <View style={styles.errorContent}>
-            <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
-            <Text style={[styles.retryText, { color: colors.error }]}>{t('common.tapToRetry')}</Text>
-          </View>
-        </TouchableOpacity>
+        <AlertBanner
+          type="error"
+          message={error}
+          onRetry={refetch}
+          retryLabel={t('common.tapToRetry')}
+        />
       ) : null}
 
       {health && (
@@ -152,12 +118,7 @@ export default function HealthScreen() {
           </View>
 
           {Object.keys(health.components).length === 0 ? (
-            <View style={styles.center}>
-              <Ionicons name="pulse-outline" size={48} color={colors.textSecondary} />
-              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                {t('health.noComponents')}
-              </Text>
-            </View>
+            <EmptyState icon="pulse-outline" message={t('health.noComponents')} />
           ) : (
             Object.entries(health.components).map(([key, component]) => {
               const isExpanded = expandedComponents.has(key);
@@ -183,21 +144,13 @@ export default function HealthScreen() {
                       </Text>
                     </View>
                     <View style={styles.cardRight}>
-                      <View
-                        style={[
-                          styles.badge,
-                          { backgroundColor: getStatusBg(component.status) },
-                        ]}
-                      >
-                        <Text
-                          style={[
-                            styles.badgeText,
-                            { color: getStatusColor(component.status) },
-                          ]}
-                        >
-                          {component.status === 'UP' ? t('health.up') : t('health.down')}
-                        </Text>
-                      </View>
+                      <Badge
+                        label={component.status === 'UP' ? t('health.up') : t('health.down')}
+                        color={getStatusColor(component.status)}
+                        backgroundColor={getStatusBg(component.status)}
+                        size="md"
+                        fontWeight="700"
+                      />
                       {hasDetails && (
                         <Ionicons
                           name={isExpanded ? 'chevron-up' : 'chevron-down'}
@@ -256,12 +209,6 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 12,
   },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
   statusBanner: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -315,15 +262,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  badgeText: {
-    fontSize: 12,
-    fontWeight: '700',
-  },
   chevron: {
     marginLeft: 8,
   },
@@ -348,28 +286,6 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     textAlign: 'right',
     flex: 1,
-  },
-  errorBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderRadius: 12,
-    gap: 8,
-  },
-  errorContent: {
-    flex: 1,
-  },
-  errorText: {
-    fontSize: 14,
-  },
-  retryText: {
-    fontSize: 12,
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  emptyText: {
-    fontSize: 16,
-    marginTop: 12,
   },
   metricsButton: {
     flexDirection: 'row',

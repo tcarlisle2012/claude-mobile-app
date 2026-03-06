@@ -15,10 +15,11 @@ import MetricsScreen from '../screens/MetricsScreen';
 import CustomDrawerContent from './CustomDrawerContent';
 import { useTheme } from '../theme/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import type { AuthStackParamList, AdminStackParamList, DrawerParamList } from './types';
 
-const Drawer = createDrawerNavigator();
-const AuthStack = createNativeStackNavigator();
-const AdminStack = createNativeStackNavigator();
+const Drawer = createDrawerNavigator<DrawerParamList>();
+const AuthStack = createNativeStackNavigator<AuthStackParamList>();
+const AdminStack = createNativeStackNavigator<AdminStackParamList>();
 
 function AuthNavigator() {
   const { colors } = useTheme();
