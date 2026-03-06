@@ -1,6 +1,6 @@
 package com.mobileapp.backend.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.mobileapp.backend.dto.FailedAuthAttempt;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.MessageSource;
@@ -22,7 +22,7 @@ class CustomAccessDeniedHandlerTest {
     private final MessageSource messageSource = mock(MessageSource.class);
     private final FailedAuthAttemptStore store = new FailedAuthAttemptStore();
     private final CustomAccessDeniedHandler handler = new CustomAccessDeniedHandler(messageSource, store);
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonMapper jsonMapper = JsonMapper.builder().build();
 
     @Test
     void handle_returns403JsonResponse() throws Exception {
@@ -39,7 +39,7 @@ class CustomAccessDeniedHandlerTest {
         assertThat(response.getContentType()).isEqualTo("application/json");
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> body = objectMapper.readValue(response.getContentAsString(), Map.class);
+        Map<String, Object> body = jsonMapper.readValue(response.getContentAsString(), Map.class);
         assertThat(body.get("status")).isEqualTo(403);
         assertThat(body.get("error")).isEqualTo("Forbidden");
         assertThat(body.get("path")).isEqualTo("/api/admin/users");

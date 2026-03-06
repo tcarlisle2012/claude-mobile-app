@@ -3,12 +3,14 @@ package com.mobileapp.backend.controller;
 import com.mobileapp.backend.service.EmailService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.health.CompositeHealth;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthComponent;
-import org.springframework.boot.actuate.health.HealthEndpoint;
-import org.springframework.boot.actuate.health.Status;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.actuate.endpoint.ApiVersion;
+import org.springframework.boot.health.actuate.endpoint.CompositeHealthDescriptor;
+import org.springframework.boot.health.actuate.endpoint.HealthDescriptor;
+import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
+import org.springframework.boot.health.actuate.endpoint.IndicatedHealthDescriptor;
+import org.springframework.boot.health.contributor.Health;
+import org.springframework.boot.health.contributor.Status;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -34,24 +36,34 @@ class HealthControllerTest {
     @MockitoBean private HealthEndpoint healthEndpoint;
     @MockitoBean private EmailService emailService;
 
-    @SuppressWarnings("unchecked")
-    private static CompositeHealth createCompositeHealth(Status status, Map<String, HealthComponent> components) {
+    private static IndicatedHealthDescriptor createIndicatedHealth(Health health) {
         try {
-            Constructor<CompositeHealth> ctor = CompositeHealth.class.getDeclaredConstructor(
-                    org.springframework.boot.actuate.endpoint.ApiVersion.class, Status.class, Map.class);
+            Constructor<IndicatedHealthDescriptor> ctor = IndicatedHealthDescriptor.class.getDeclaredConstructor(Health.class);
             ctor.setAccessible(true);
-            return ctor.newInstance(org.springframework.boot.actuate.endpoint.ApiVersion.V3, status, components);
+            return ctor.newInstance(health);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create CompositeHealth", e);
+            throw new RuntimeException("Failed to create IndicatedHealthDescriptor", e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static CompositeHealthDescriptor createCompositeHealth(Status status, Map<String, HealthDescriptor> components) {
+        try {
+            Constructor<CompositeHealthDescriptor> ctor = CompositeHealthDescriptor.class.getDeclaredConstructor(
+                    ApiVersion.class, Status.class, Map.class);
+            ctor.setAccessible(true);
+            return ctor.newInstance(ApiVersion.V3, status, components);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create CompositeHealthDescriptor", e);
         }
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void getHealth_asAdmin_returns200WithComponents() throws Exception {
-        Map<String, HealthComponent> components = new LinkedHashMap<>();
-        components.put("db", Health.up().withDetail("database", "H2").build());
-        components.put("diskSpace", Health.up().withDetail("total", 500000000L).withDetail("free", 300000000L).build());
+        Map<String, HealthDescriptor> components = new LinkedHashMap<>();
+        components.put("db", createIndicatedHealth(Health.up().withDetail("database", "H2").build()));
+        components.put("diskSpace", createIndicatedHealth(Health.up().withDetail("total", 500000000L).withDetail("free", 300000000L).build()));
 
         when(healthEndpoint.health()).thenReturn(createCompositeHealth(Status.UP, components));
 
@@ -67,8 +79,8 @@ class HealthControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void getHealth_asAdmin_withDownComponent_returnsCorrectStatus() throws Exception {
-        Map<String, HealthComponent> components = new LinkedHashMap<>();
-        components.put("db", Health.down().withDetail("error", "Connection refused").build());
+        Map<String, HealthDescriptor> components = new LinkedHashMap<>();
+        components.put("db", createIndicatedHealth(Health.down().withDetail("error", "Connection refused").build()));
 
         when(healthEndpoint.health()).thenReturn(createCompositeHealth(Status.DOWN, components));
 
@@ -82,7 +94,7 @@ class HealthControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void getHealth_asAdmin_noComponents_returnsEmptyComponents() throws Exception {
-        when(healthEndpoint.health()).thenReturn(Health.up().build());
+        when(healthEndpoint.health()).thenReturn(createIndicatedHealth(Health.up().build()));
 
         mockMvc.perform(get("/api/admin/health"))
                 .andExpect(status().isOk())

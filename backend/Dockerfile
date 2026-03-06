@@ -1,5 +1,5 @@
 # ── Build stage ────────────────────────────────────────────────
-FROM maven:3.9-eclipse-temurin-17 AS build
+FROM maven:3.9-eclipse-temurin-25 AS build
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ COPY src ./src
 RUN mvn package -DskipTests -B
 
 # ── Runtime stage ─────────────────────────────────────────────
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:25-jdk-alpine
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 

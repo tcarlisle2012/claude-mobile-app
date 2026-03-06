@@ -1,9 +1,9 @@
 package com.mobileapp.backend.controller;
 
-import org.springframework.boot.actuate.health.CompositeHealth;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthComponent;
-import org.springframework.boot.actuate.health.HealthEndpoint;
+import org.springframework.boot.health.actuate.endpoint.CompositeHealthDescriptor;
+import org.springframework.boot.health.actuate.endpoint.HealthDescriptor;
+import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
+import org.springframework.boot.health.actuate.endpoint.IndicatedHealthDescriptor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,22 +25,22 @@ public class HealthController {
 
     @GetMapping("/health")
     public Map<String, Object> getHealth() {
-        HealthComponent healthComponent = healthEndpoint.health();
+        HealthDescriptor healthDescriptor = healthEndpoint.health();
 
         Map<String, Object> response = new LinkedHashMap<>();
-        response.put("status", healthComponent.getStatus().getCode());
+        response.put("status", healthDescriptor.getStatus().getCode());
 
         Map<String, Object> components = new LinkedHashMap<>();
-        if (healthComponent instanceof CompositeHealth compositeHealth
+        if (healthDescriptor instanceof CompositeHealthDescriptor compositeHealth
                 && compositeHealth.getComponents() != null) {
-            for (Map.Entry<String, HealthComponent> entry : compositeHealth.getComponents().entrySet()) {
+            for (Map.Entry<String, HealthDescriptor> entry : compositeHealth.getComponents().entrySet()) {
                 Map<String, Object> componentData = new LinkedHashMap<>();
                 componentData.put("status", entry.getValue().getStatus().getCode());
 
-                if (entry.getValue() instanceof Health h
-                        && h.getDetails() != null && !h.getDetails().isEmpty()) {
-                    componentData.put("details", h.getDetails());
-                } else if (entry.getValue() instanceof CompositeHealth nested
+                if (entry.getValue() instanceof IndicatedHealthDescriptor ind
+                        && ind.getDetails() != null && !ind.getDetails().isEmpty()) {
+                    componentData.put("details", ind.getDetails());
+                } else if (entry.getValue() instanceof CompositeHealthDescriptor nested
                         && nested.getDetails() != null && !nested.getDetails().isEmpty()) {
                     componentData.put("details", nested.getDetails());
                 }

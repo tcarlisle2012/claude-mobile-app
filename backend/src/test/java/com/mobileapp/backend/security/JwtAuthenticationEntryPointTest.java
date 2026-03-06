@@ -1,6 +1,6 @@
 package com.mobileapp.backend.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.mobileapp.backend.dto.FailedAuthAttempt;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.MessageSource;
@@ -22,7 +22,7 @@ class JwtAuthenticationEntryPointTest {
     private final MessageSource messageSource = mock(MessageSource.class);
     private final FailedAuthAttemptStore store = new FailedAuthAttemptStore();
     private final JwtAuthenticationEntryPoint entryPoint = new JwtAuthenticationEntryPoint(messageSource, store);
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonMapper jsonMapper = JsonMapper.builder().build();
 
     @Test
     void commence_returns401JsonResponse() throws Exception {
@@ -40,7 +40,7 @@ class JwtAuthenticationEntryPointTest {
         assertThat(response.getContentType()).isEqualTo("application/json");
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> body = objectMapper.readValue(
+        Map<String, Object> body = jsonMapper.readValue(
                 response.getContentAsString(), Map.class);
         assertThat(body.get("status")).isEqualTo(401);
         assertThat(body.get("error")).isEqualTo("Unauthorized");
