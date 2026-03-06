@@ -41,13 +41,13 @@ The mobile app communicates with the backend exclusively through a REST API. Aut
 | Node.js     | 18+     |
 | npm         | 9+      |
 
-For email testing (optional):
+For email testing (optional): [Mailpit](https://github.com/axllent/mailpit)
 
 ```bash
-docker run -d -p 1025:1025 -p 8025:8025 mailhog/mailhog
+docker run -d -p 1025:1025 -p 8025:8025 axllent/mailpit
 ```
 
-MailHog captures outgoing emails at `http://localhost:8025`.
+Mailpit captures all outgoing SMTP emails and provides a web UI at `http://localhost:8025` to inspect them. The backend is already configured to send mail to `localhost:1025`, so no additional configuration is needed. Mailpit can also be installed without Docker via Homebrew (`brew install mailpit`) or as a standalone binary -- see the [Mailpit repo](https://github.com/axllent/mailpit) for details.
 
 ---
 

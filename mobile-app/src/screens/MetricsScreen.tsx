@@ -122,10 +122,20 @@ export default function MetricsScreen() {
       }
     >
       {error ? (
-        <View style={[styles.errorBox, { backgroundColor: '#FEE2E2' }]}>
+        <TouchableOpacity
+          style={[styles.errorBox, { backgroundColor: '#FEE2E2' }]}
+          onPress={fetchMetrics}
+          activeOpacity={0.7}
+          accessibilityRole="alert"
+          accessibilityLiveRegion="polite"
+          accessibilityLabel={`${error}. ${t('common.tapToRetry')}`}
+        >
           <Ionicons name="alert-circle" size={18} color="#DC2626" />
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
+          <View style={styles.errorContent}>
+            <Text style={styles.errorText}>{error}</Text>
+            <Text style={styles.retryText}>{t('common.tapToRetry')}</Text>
+          </View>
+        </TouchableOpacity>
       ) : null}
 
       {metrics && (
@@ -394,10 +404,18 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     gap: 8,
   },
+  errorContent: {
+    flex: 1,
+  },
   errorText: {
     color: '#DC2626',
     fontSize: 14,
-    flex: 1,
+  },
+  retryText: {
+    color: '#DC2626',
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 2,
   },
   emptyText: {
     fontSize: 16,

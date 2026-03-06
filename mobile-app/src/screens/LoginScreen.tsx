@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -31,6 +31,7 @@ export default function LoginScreen({ navigation }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const passwordRef = useRef<TextInput>(null);
 
   const handleLogin = async () => {
     setError('');
@@ -57,6 +58,7 @@ export default function LoginScreen({ navigation }: Props) {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
         <View style={styles.header}>
           <View style={[styles.iconContainer, { backgroundColor: colors.primaryLight }]}>
@@ -69,7 +71,11 @@ export default function LoginScreen({ navigation }: Props) {
         </View>
 
         {error ? (
-          <View style={[styles.errorBox, { backgroundColor: '#FEE2E2' }]}>
+          <View
+            style={[styles.errorBox, { backgroundColor: '#FEE2E2' }]}
+            accessibilityRole="alert"
+            accessibilityLiveRegion="polite"
+          >
             <Ionicons name="alert-circle" size={18} color="#DC2626" />
             <Text style={styles.errorText}>{error}</Text>
           </View>
@@ -88,6 +94,8 @@ export default function LoginScreen({ navigation }: Props) {
                 onChangeText={setUsername}
                 autoCapitalize="none"
                 autoCorrect={false}
+                returnKeyType="next"
+                onSubmitEditing={() => passwordRef.current?.focus()}
               />
             </View>
           </View>
@@ -97,6 +105,7 @@ export default function LoginScreen({ navigation }: Props) {
             <View style={[styles.inputRow, { borderColor: colors.border }]}>
               <Ionicons name="lock-closed-outline" size={18} color={colors.icon} style={styles.inputIcon} />
               <TextInput
+                ref={passwordRef}
                 style={[styles.input, { color: colors.text }]}
                 placeholder={t('login.passwordPlaceholder')}
                 placeholderTextColor={colors.textSecondary}
@@ -105,8 +114,15 @@ export default function LoginScreen({ navigation }: Props) {
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
                 autoCorrect={false}
+                returnKeyType="go"
+                onSubmitEditing={handleLogin}
               />
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeButton}>
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={styles.eyeButton}
+                accessibilityRole="button"
+                accessibilityLabel={showPassword ? t('login.hidePassword') : t('login.showPassword')}
+              >
                 <Ionicons
                   name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                   size={20}
@@ -117,10 +133,13 @@ export default function LoginScreen({ navigation }: Props) {
           </View>
 
           <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.primary }]}
+            style={[styles.button, { backgroundColor: colors.primary, opacity: loading ? 0.6 : 1 }]}
             onPress={handleLogin}
             disabled={loading}
             activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: loading }}
+            accessibilityLabel={t('login.submitButton')}
           >
             {loading ? (
               <ActivityIndicator color="#FFFFFF" />
@@ -222,7 +241,8 @@ const styles = StyleSheet.create({
     height: 48,
   },
   eyeButton: {
-    padding: 4,
+    padding: 8,
+    marginRight: -4,
   },
   button: {
     height: 50,

@@ -61,11 +61,13 @@ function AdminNavigator() {
           title: t('navigation.users'),
           headerLeft: () => (
             <TouchableOpacity
-              onPress={() => (navigation as any).getParent()?.toggleDrawer()}
-              style={styles.menuButton}
+              onPress={() => (navigation as any).getParent()?.goBack()}
+              style={styles.backButton}
               activeOpacity={0.6}
+              accessibilityRole="button"
+              accessibilityLabel={t('navigation.goBack')}
             >
-              <Ionicons name="menu" size={24} color={colors.text} />
+              <Ionicons name="chevron-back" size={24} color={colors.text} />
             </TouchableOpacity>
           ),
         })}
@@ -82,6 +84,7 @@ function AdminNavigator() {
 function MainNavigator() {
   const { colors, isDark } = useTheme();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const isAdmin = user?.roles?.includes('ROLE_ADMIN') ?? false;
 
   return (
@@ -105,6 +108,8 @@ function MainNavigator() {
             onPress={() => navigation.toggleDrawer()}
             style={styles.menuButton}
             activeOpacity={0.6}
+            accessibilityRole="button"
+            accessibilityLabel={t('navigation.openMenu')}
           >
             <Ionicons name="menu" size={24} color={colors.text} />
           </TouchableOpacity>
@@ -114,7 +119,23 @@ function MainNavigator() {
       })}
     >
       <Drawer.Screen name="Home" component={HomeScreen} />
-      <Drawer.Screen name="Settings" component={SettingsScreen} />
+      <Drawer.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={({ navigation }) => ({
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={styles.backButton}
+              activeOpacity={0.6}
+              accessibilityRole="button"
+              accessibilityLabel={t('navigation.goBack')}
+            >
+              <Ionicons name="chevron-back" size={24} color={colors.text} />
+            </TouchableOpacity>
+          ),
+        })}
+      />
       {isAdmin && (
         <Drawer.Screen
           name="Users"
@@ -123,13 +144,42 @@ function MainNavigator() {
         />
       )}
       {isAdmin && (
-        <Drawer.Screen name="Health" component={HealthScreen} />
+        <Drawer.Screen
+          name="Health"
+          component={HealthScreen}
+          options={({ navigation }) => ({
+            headerLeft: () => (
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={styles.backButton}
+                activeOpacity={0.6}
+                accessibilityRole="button"
+                accessibilityLabel={t('navigation.goBack')}
+              >
+                <Ionicons name="chevron-back" size={24} color={colors.text} />
+              </TouchableOpacity>
+            ),
+          })}
+        />
       )}
       {isAdmin && (
         <Drawer.Screen
           name="Metrics"
           component={MetricsScreen}
-          options={{ drawerItemStyle: { display: 'none' } }}
+          options={({ navigation }) => ({
+            drawerItemStyle: { display: 'none' },
+            headerLeft: () => (
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Health')}
+                style={styles.backButton}
+                activeOpacity={0.6}
+                accessibilityRole="button"
+                accessibilityLabel={t('navigation.goBack')}
+              >
+                <Ionicons name="chevron-back" size={24} color={colors.text} />
+              </TouchableOpacity>
+            ),
+          })}
         />
       )}
     </Drawer.Navigator>
@@ -153,8 +203,12 @@ export default function AppNavigator() {
 
 const styles = StyleSheet.create({
   menuButton: {
-    marginLeft: 16,
-    padding: 4,
+    marginLeft: 8,
+    padding: 10,
+  },
+  backButton: {
+    marginLeft: 0,
+    padding: 10,
   },
   loading: {
     flex: 1,

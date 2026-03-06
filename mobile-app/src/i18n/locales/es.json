@@ -7,7 +7,8 @@
     "save": "Guardar",
     "signIn": "Iniciar sesión",
     "signUp": "Registrarse",
-    "signOut": "Cerrar sesión"
+    "signOut": "Cerrar sesión",
+    "tapToRetry": "Toca para reintentar"
   },
   "login": {
     "title": "Bienvenido de nuevo",
@@ -20,7 +21,9 @@
     "emptyFieldsError": "Por favor, ingrese su nombre de usuario y contraseña.",
     "fallbackError": "Error al iniciar sesión. Por favor, inténtelo de nuevo.",
     "noAccount": "¿No tiene una cuenta? ",
-    "signUpLink": "Registrarse"
+    "signUpLink": "Registrarse",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña"
   },
   "register": {
     "title": "Crear cuenta",
@@ -49,7 +52,9 @@
       "emailInvalid": "Por favor, ingrese un correo electrónico válido",
       "passwordRequired": "La contraseña es obligatoria",
       "passwordMinLength": "La contraseña debe tener al menos 8 caracteres"
-    }
+    },
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña"
   },
   "home": {
     "greeting": "Hola Mundo",
@@ -156,6 +161,8 @@
     "users": "Usuarios",
     "userDetails": "Detalles del usuario",
     "health": "Salud",
-    "metrics": "Métricas"
+    "metrics": "Métricas",
+    "goBack": "Volver",
+    "openMenu": "Abrir menú de navegación"
   }
 }

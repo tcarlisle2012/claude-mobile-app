@@ -7,7 +7,8 @@
     "save": "Save",
     "signIn": "Sign In",
     "signUp": "Sign Up",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "tapToRetry": "Tap to retry"
   },
   "login": {
     "title": "Welcome Back",
@@ -20,7 +21,9 @@
     "emptyFieldsError": "Please enter both username and password.",
     "fallbackError": "Login failed. Please try again.",
     "noAccount": "Don't have an account? ",
-    "signUpLink": "Sign Up"
+    "signUpLink": "Sign Up",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   },
   "register": {
     "title": "Create Account",
@@ -40,6 +43,8 @@
     "fallbackError": "Registration failed. Please try again.",
     "hasAccount": "Already have an account? ",
     "signInLink": "Sign In",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "validation": {
       "firstNameRequired": "First name is required",
       "lastNameRequired": "Last name is required",
@@ -156,6 +161,8 @@
     "users": "Users",
     "userDetails": "User Details",
     "health": "Health",
-    "metrics": "Metrics"
+    "metrics": "Metrics",
+    "goBack": "Go back",
+    "openMenu": "Open navigation menu"
   }
 }

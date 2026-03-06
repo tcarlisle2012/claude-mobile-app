@@ -7,7 +7,8 @@
     "save": "Enregistrer",
     "signIn": "Se connecter",
     "signUp": "S'inscrire",
-    "signOut": "Se déconnecter"
+    "signOut": "Se déconnecter",
+    "tapToRetry": "Appuyez pour réessayer"
   },
   "login": {
     "title": "Bon retour",
@@ -20,7 +21,9 @@
     "emptyFieldsError": "Veuillez entrer votre nom d'utilisateur et votre mot de passe.",
     "fallbackError": "Échec de la connexion. Veuillez réessayer.",
     "noAccount": "Vous n'avez pas de compte ? ",
-    "signUpLink": "S'inscrire"
+    "signUpLink": "S'inscrire",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe"
   },
   "register": {
     "title": "Créer un compte",
@@ -49,7 +52,9 @@
       "emailInvalid": "Veuillez entrer un courriel valide",
       "passwordRequired": "Le mot de passe est requis",
       "passwordMinLength": "Le mot de passe doit comporter au moins 8 caractères"
-    }
+    },
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe"
   },
   "home": {
     "greeting": "Bonjour le monde",
@@ -156,6 +161,8 @@
     "users": "Utilisateurs",
     "userDetails": "Détails de l'utilisateur",
     "health": "Santé",
-    "metrics": "Métriques"
+    "metrics": "Métriques",
+    "goBack": "Retour",
+    "openMenu": "Ouvrir le menu de navigation"
   }
 }
