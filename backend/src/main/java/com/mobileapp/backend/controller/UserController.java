@@ -5,7 +5,6 @@ import com.mobileapp.backend.entity.User;
 import com.mobileapp.backend.exception.ResourceNotFoundException;
 import com.mobileapp.backend.repository.UserRepository;
 import com.mobileapp.backend.util.Messages;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,10 +24,10 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserDto> getCurrentUser(
+    public UserDto getCurrentUser(
             @AuthenticationPrincipal UserDetails userDetails) {
         User user = userRepository.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new ResourceNotFoundException(messages.get("user.error.not-found")));
-        return ResponseEntity.ok(UserDto.fromEntity(user));
+        return UserDto.fromEntity(user);
     }
 }

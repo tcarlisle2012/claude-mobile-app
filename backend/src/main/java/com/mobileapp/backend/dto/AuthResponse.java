@@ -43,4 +43,11 @@ public class AuthResponse {
 
     public List<String> getRoles() { return roles; }
     public void setRoles(List<String> roles) { this.roles = roles; }
+
+    @Override
+    public String toString() {
+        return "AuthResponse{username='" + username + "', email='" + email +
+                "', firstName='" + firstName + "', lastName='" + lastName +
+                "', roles=" + roles + "}";
+    }
 }

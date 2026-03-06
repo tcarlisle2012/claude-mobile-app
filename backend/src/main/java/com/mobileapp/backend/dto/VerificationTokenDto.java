@@ -31,4 +31,10 @@ public class VerificationTokenDto {
 
     public boolean isExpired() { return expired; }
     public void setExpired(boolean expired) { this.expired = expired; }
+
+    @Override
+    public String toString() {
+        return "VerificationTokenDto{id=" + id + ", token='" + token +
+                "', expiryDate=" + expiryDate + ", expired=" + expired + "}";
+    }
 }

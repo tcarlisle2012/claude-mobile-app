@@ -59,4 +59,12 @@ public class UserDto {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    @Override
+    public String toString() {
+        return "UserDto{id=" + id + ", username='" + username + "', email='" + email +
+                "', firstName='" + firstName + "', lastName='" + lastName +
+                "', enabled=" + enabled + ", accountNonLocked=" + accountNonLocked +
+                ", roles=" + roles + "}";
+    }
 }

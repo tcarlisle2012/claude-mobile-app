@@ -31,7 +31,7 @@ public class MetricsController {
     }
 
     @GetMapping("/metrics")
-    public ResponseEntity<Map<String, Object>> getMetrics() {
+    public Map<String, Object> getMetrics() {
         List<Map<String, Object>> httpRequestMetrics = new ArrayList<>();
 
         meterRegistry.find("http.server.requests").timers().forEach(timer -> {
@@ -49,7 +49,7 @@ public class MetricsController {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("httpRequestMetrics", httpRequestMetrics);
         response.put("failedAuthAttempts", failedAuthAttemptStore.getRecentAttempts());
-        return ResponseEntity.ok(response);
+        return response;
     }
 
     @DeleteMapping("/metrics/failed-auth")
