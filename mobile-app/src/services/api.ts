@@ -239,3 +239,15 @@ export async function adminRegenerateToken(
     method: 'POST',
   });
 }
+
+// ---- Health endpoints ----
+
+export async function adminGetHealth(): Promise<HealthResponse> {
+  return request<HealthResponse>('/admin/health');
+}
+
+// ---- Metrics endpoints ----
+
+export async function adminGetMetrics(): Promise<MetricsResponse> {
+  return request<MetricsResponse>('/admin/metrics');
+}
