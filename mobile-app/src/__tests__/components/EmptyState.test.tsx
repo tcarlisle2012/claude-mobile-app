@@ -1,14 +1,11 @@
 import React from 'react';
-import { render } from '@testing-library/react-native';
 import EmptyState from '../../components/EmptyState';
-import { ThemeProvider } from '../../theme/ThemeContext';
+import { renderWithTheme } from '../test-utils';
 
 describe('EmptyState', () => {
   it('renders message', () => {
-    const { getByText } = render(
-      <ThemeProvider>
-        <EmptyState icon="people-outline" message="No users found" />
-      </ThemeProvider>,
+    const { getByText } = renderWithTheme(
+      <EmptyState icon="people-outline" message="No users found" />,
     );
     expect(getByText('No users found')).toBeTruthy();
   });

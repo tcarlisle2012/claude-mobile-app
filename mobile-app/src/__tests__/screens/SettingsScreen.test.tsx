@@ -1,14 +1,10 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { fireEvent } from '@testing-library/react-native';
 import SettingsScreen from '../../screens/SettingsScreen';
-import { ThemeProvider, useTheme } from '../../theme/ThemeContext';
+import { renderWithTheme } from '../test-utils';
 
 function renderScreen() {
-  return render(
-    <ThemeProvider>
-      <SettingsScreen />
-    </ThemeProvider>,
-  );
+  return renderWithTheme(<SettingsScreen />);
 }
 
 describe('SettingsScreen', () => {

@@ -8,7 +8,9 @@
     "signIn": "Sign In",
     "signUp": "Sign Up",
     "signOut": "Sign Out",
-    "tapToRetry": "Tap to retry"
+    "tapToRetry": "Tap to retry",
+    "sessionExpired": "Your session has expired. Please sign in again.",
+    "networkError": "Unable to connect. Please check your internet connection and try again."
   },
   "login": {
     "title": "Welcome Back",

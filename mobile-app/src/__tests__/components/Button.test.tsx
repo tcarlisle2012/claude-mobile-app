@@ -1,14 +1,10 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { fireEvent } from '@testing-library/react-native';
 import Button from '../../components/Button';
-import { ThemeProvider } from '../../theme/ThemeContext';
+import { renderWithTheme } from '../test-utils';
 
 function renderComponent(props: React.ComponentProps<typeof Button>) {
-  return render(
-    <ThemeProvider>
-      <Button {...props} />
-    </ThemeProvider>,
-  );
+  return renderWithTheme(<Button {...props} />);
 }
 
 describe('Button', () => {

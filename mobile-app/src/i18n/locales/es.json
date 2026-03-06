@@ -8,7 +8,9 @@
     "signIn": "Iniciar sesión",
     "signUp": "Registrarse",
     "signOut": "Cerrar sesión",
-    "tapToRetry": "Toca para reintentar"
+    "tapToRetry": "Toca para reintentar",
+    "sessionExpired": "Su sesión ha expirado. Por favor, inicie sesión de nuevo.",
+    "networkError": "No se puede conectar. Por favor, verifique su conexión a internet e inténtelo de nuevo."
   },
   "login": {
     "title": "Bienvenido de nuevo",
