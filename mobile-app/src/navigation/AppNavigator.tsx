@@ -126,7 +126,11 @@ function MainNavigator() {
         <Drawer.Screen name="Health" component={HealthScreen} />
       )}
       {isAdmin && (
-        <Drawer.Screen name="Metrics" component={MetricsScreen} />
+        <Drawer.Screen
+          name="Metrics"
+          component={MetricsScreen}
+          options={{ drawerItemStyle: { display: 'none' } }}
+        />
       )}
     </Drawer.Navigator>
   );

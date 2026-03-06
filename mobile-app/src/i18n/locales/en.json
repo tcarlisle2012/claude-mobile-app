@@ -117,6 +117,7 @@
     "down": "DOWN",
     "noComponents": "No health components found",
     "loadError": "Failed to load health status",
+    "viewMetrics": "View Metrics",
     "components": {
       "db": "Database",
       "diskSpace": "Disk Space",

@@ -117,6 +117,7 @@
     "down": "INACTIVO",
     "noComponents": "No se encontraron componentes de salud",
     "loadError": "Error al cargar el estado de salud",
+    "viewMetrics": "Ver m\u00e9tricas",
     "components": {
       "db": "Base de datos",
       "diskSpace": "Espacio en disco",

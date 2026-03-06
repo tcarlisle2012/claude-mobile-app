@@ -9,6 +9,7 @@ jest.mock('../../services/api', () => ({
 }));
 const api = require('../../services/api');
 
+const mockNavigate = jest.fn();
 jest.mock('@react-navigation/native', () => ({
   ...jest.requireActual('@react-navigation/native'),
   useFocusEffect: (callback: () => any) => {
@@ -17,6 +18,7 @@ jest.mock('@react-navigation/native', () => ({
       callback();
     }, [callback]);
   },
+  useNavigation: () => ({ navigate: mockNavigate }),
 }));
 
 const sampleHealth = {
@@ -137,6 +139,18 @@ describe('HealthScreen', () => {
     await waitFor(() => {
       expect(getByText('Forbidden')).toBeTruthy();
     });
+  });
+
+  it('navigates to Metrics on View Metrics press', async () => {
+    api.adminGetHealth.mockResolvedValue(sampleHealth);
+    const { getByText } = renderScreen();
+
+    await waitFor(() => {
+      expect(getByText('View Metrics')).toBeTruthy();
+    });
+
+    fireEvent.press(getByText('View Metrics'));
+    expect(mockNavigate).toHaveBeenCalledWith('Metrics');
   });
 
   it('collapses component details on second press', async () => {

@@ -117,6 +117,7 @@
     "down": "INACTIF",
     "noComponents": "Aucun composant de sant\u00e9 trouv\u00e9",
     "loadError": "\u00c9chec du chargement de l'\u00e9tat de sant\u00e9",
+    "viewMetrics": "Voir les m\u00e9triques",
     "components": {
       "db": "Base de donn\u00e9es",
       "diskSpace": "Espace disque",

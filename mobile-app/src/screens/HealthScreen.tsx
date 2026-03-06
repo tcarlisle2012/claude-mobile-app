@@ -9,7 +9,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
 import * as api from '../services/api';
@@ -17,6 +17,7 @@ import * as api from '../services/api';
 export default function HealthScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation();
+  const navigation = useNavigation<any>();
   const [health, setHealth] = useState<api.HealthResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -219,6 +220,18 @@ export default function HealthScreen() {
               );
             })
           )}
+
+          <TouchableOpacity
+            style={[styles.metricsButton, { backgroundColor: colors.surface }]}
+            onPress={() => navigation.navigate('Metrics')}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="analytics-outline" size={22} color={colors.primary} />
+            <Text style={[styles.metricsButtonText, { color: colors.primary }]}>
+              {t('health.viewMetrics')}
+            </Text>
+            <Ionicons name="chevron-forward" size={18} color={colors.primary} />
+          </TouchableOpacity>
         </>
       )}
     </ScrollView>
@@ -341,5 +354,22 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     marginTop: 12,
+  },
+  metricsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 16,
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  metricsButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    flex: 1,
   },
 });
