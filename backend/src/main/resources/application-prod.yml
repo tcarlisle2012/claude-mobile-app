@@ -1,0 +1,47 @@
+# ─── Production Profile ──────────────────────────────────────────
+# Activated via: SPRING_PROFILES_ACTIVE=prod
+# All sensitive values should be provided via environment variables.
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:mobileapp}
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME:mobileapp}
+    password: ${DB_PASSWORD:mobileapp}
+
+  h2:
+    console:
+      enabled: false
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USERNAME:noreply@mobileapp.com}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:false}
+          starttls:
+            enable: ${MAIL_SMTP_TLS:false}
+
+app:
+  base-url: ${APP_BASE_URL:http://localhost:8080}
+  cors:
+    allowed-origins: ${CORS_ORIGINS:*}
+  jwt:
+    secret: ${JWT_SECRET}
+  admin:
+    username: ${ADMIN_USERNAME:admin}
+    password: ${ADMIN_PASSWORD:admin}
+    email: ${ADMIN_EMAIL:admin@mobileapp.com}
+
+logging:
+  level:
+    com.mobileapp.backend: INFO
+    org.springframework.security: WARN

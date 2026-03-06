@@ -128,6 +128,16 @@ claude-mobile-app/
 │       ├── i18n/            i18next config + locale JSON files (en, fr, es)
 │       └── __tests__/       Unit and integration tests
 │
+├── k8s/                     Kubernetes manifests
+│   ├── namespace.yml
+│   ├── configmap.yml
+│   ├── secret.yml
+│   ├── postgres.yml
+│   ├── backend-deployment.yml
+│   ├── backend-service.yml
+│   └── ingress.yml
+│
+├── docker-compose.yml       Local dev (backend + PostgreSQL + Mailpit)
 └── data/                    H2 database files (generated at runtime)
 ```
 
@@ -230,6 +240,69 @@ The API base URL is set per platform in `api.ts`. For a physical device or custo
 
 ---
 
+## Docker
+
+### docker-compose (local development)
+
+Start the backend with PostgreSQL and Mailpit:
+
+```bash
+docker compose up --build
+```
+
+| Service  | URL                         | Description              |
+|----------|-----------------------------|--------------------------|
+| Backend  | http://localhost:8080       | Spring Boot API          |
+| Mailpit  | http://localhost:8025       | Email testing UI         |
+| Postgres | localhost:5432              | PostgreSQL database      |
+
+The backend uses the `prod` Spring profile inside Docker, connecting to PostgreSQL instead of H2. Mailpit captures outgoing emails on SMTP port 1025.
+
+To stop and remove volumes:
+
+```bash
+docker compose down -v
+```
+
+### Build the image only
+
+```bash
+docker build -t mobileapp-backend ./backend
+```
+
+The Dockerfile uses a multi-stage build (Maven build + JRE-only runtime) and runs as a non-root user.
+
+---
+
+## Kubernetes
+
+Deploy to a Kubernetes cluster:
+
+```bash
+kubectl apply -f k8s/namespace.yml
+kubectl apply -f k8s/
+```
+
+This creates the `mobileapp` namespace with:
+
+| Resource           | Kind         | Description                                  |
+|--------------------|------------- |----------------------------------------------|
+| `namespace.yml`    | Namespace    | `mobileapp` namespace                        |
+| `configmap.yml`    | ConfigMap    | Non-sensitive config (DB host, mail, CORS)    |
+| `secret.yml`       | Secret       | DB credentials, JWT secret, admin password    |
+| `postgres.yml`     | StatefulSet  | PostgreSQL 16 with 1Gi PVC                   |
+| `backend-deployment.yml` | Deployment | Backend (2 replicas) with health probes |
+| `backend-service.yml` | Service   | ClusterIP on port 80 → 8080                  |
+| `ingress.yml`      | Ingress      | nginx ingress routing `/` → backend          |
+
+**Before deploying to production**, update `k8s/secret.yml` with real base64-encoded credentials:
+
+```bash
+echo -n 'your-real-password' | base64
+```
+
+---
+
 ## Security Notes
 
 - **JWT secret** must be changed before deploying to production
@@ -247,7 +320,7 @@ The API base URL is set per platform in `api.ts`. For a physical device or custo
 |----------|-------------------------------------------------------------|
 | Backend  | Java 17, Spring Boot 3.4, Spring Security, Spring Data JPA |
 | Auth     | JWT (jjwt 0.12), BCrypt                                    |
-| Database | H2 (file-based), Liquibase                                 |
+| Database | H2 (dev), PostgreSQL 16 (prod), Liquibase                  |
 | Email    | Spring Mail, Thymeleaf templates                            |
 | Frontend | React Native 0.83, Expo 55, TypeScript 5.9                 |
 | Navigation| React Navigation 7 (Stack + Drawer)                       |
