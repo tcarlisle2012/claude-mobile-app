@@ -50,16 +50,20 @@ class HealthControllerIntegrationTest {
     }
 
     @Test
-    void getHealth_withAdminToken_returnsHealth() throws Exception {
+    void getHealth_asAdmin_returnsHealthWithComponents() throws Exception {
         mockMvc.perform(get("/api/admin/health")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").exists())
-                .andExpect(jsonPath("$.components").exists());
+                .andExpect(jsonPath("$.status").value("UP"))
+                .andExpect(jsonPath("$.components").isMap())
+                .andExpect(jsonPath("$.components.db").exists())
+                .andExpect(jsonPath("$.components.db.status").value("UP"))
+                .andExpect(jsonPath("$.components.diskSpace").exists())
+                .andExpect(jsonPath("$.components.diskSpace.status").value("UP"));
     }
 
     @Test
-    void getHealth_withoutToken_returns401() throws Exception {
+    void getHealth_noAuth_returns401() throws Exception {
         mockMvc.perform(get("/api/admin/health"))
                 .andExpect(status().isUnauthorized());
     }

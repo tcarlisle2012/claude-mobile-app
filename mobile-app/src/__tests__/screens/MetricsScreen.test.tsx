@@ -117,6 +117,7 @@ describe('MetricsScreen', () => {
     await waitFor(() => {
       const requestCounts = getAllByText(/^\d+$/).map((el) => el.props.children);
       // Sorted: 42 (health), 15 (login), 3 (me)
+      // The first "42" should appear before "15" and "3"
       const idx42 = requestCounts.indexOf(42);
       const idx15 = requestCounts.indexOf(15);
       const idx3 = requestCounts.indexOf(3);

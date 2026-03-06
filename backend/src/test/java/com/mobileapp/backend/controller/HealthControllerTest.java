@@ -3,7 +3,11 @@ package com.mobileapp.backend.controller;
 import com.mobileapp.backend.service.EmailService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.health.*;
+import org.springframework.boot.actuate.health.CompositeHealth;
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthComponent;
+import org.springframework.boot.actuate.health.HealthEndpoint;
+import org.springframework.boot.actuate.health.Status;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -31,53 +35,59 @@ class HealthControllerTest {
     @MockitoBean private EmailService emailService;
 
     @SuppressWarnings("unchecked")
-    private CompositeHealth createCompositeHealth(Status status, Map<String, HealthComponent> components) throws Exception {
-        Class<?> apiVersionClass = Class.forName("org.springframework.boot.actuate.endpoint.ApiVersion");
-        Object apiVersionV3 = null;
-        for (Object constant : apiVersionClass.getEnumConstants()) {
-            if ("V3".equals(((Enum<?>) constant).name())) {
-                apiVersionV3 = constant;
-                break;
-            }
+    private static CompositeHealth createCompositeHealth(Status status, Map<String, HealthComponent> components) {
+        try {
+            Constructor<CompositeHealth> ctor = CompositeHealth.class.getDeclaredConstructor(
+                    org.springframework.boot.actuate.endpoint.ApiVersion.class, Status.class, Map.class);
+            ctor.setAccessible(true);
+            return ctor.newInstance(org.springframework.boot.actuate.endpoint.ApiVersion.V3, status, components);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create CompositeHealth", e);
         }
-        Constructor<CompositeHealth> ctor = CompositeHealth.class.getDeclaredConstructor(
-                apiVersionClass, Status.class, Map.class);
-        ctor.setAccessible(true);
-        return ctor.newInstance(apiVersionV3, status, components);
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getHealth_returnsStatusAndComponents() throws Exception {
+    void getHealth_asAdmin_returns200WithComponents() throws Exception {
         Map<String, HealthComponent> components = new LinkedHashMap<>();
         components.put("db", Health.up().withDetail("database", "H2").build());
-        components.put("ping", Health.up().build());
+        components.put("diskSpace", Health.up().withDetail("total", 500000000L).withDetail("free", 300000000L).build());
 
-        CompositeHealth composite = createCompositeHealth(Status.UP, components);
-        when(healthEndpoint.health()).thenReturn(composite);
+        when(healthEndpoint.health()).thenReturn(createCompositeHealth(Status.UP, components));
 
         mockMvc.perform(get("/api/admin/health"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("UP"))
                 .andExpect(jsonPath("$.components.db.status").value("UP"))
                 .andExpect(jsonPath("$.components.db.details.database").value("H2"))
-                .andExpect(jsonPath("$.components.ping.status").value("UP"));
+                .andExpect(jsonPath("$.components.diskSpace.status").value("UP"))
+                .andExpect(jsonPath("$.components.diskSpace.details.total").value(500000000));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getHealth_returnsDownStatus() throws Exception {
+    void getHealth_asAdmin_withDownComponent_returnsCorrectStatus() throws Exception {
         Map<String, HealthComponent> components = new LinkedHashMap<>();
         components.put("db", Health.down().withDetail("error", "Connection refused").build());
 
-        CompositeHealth composite = createCompositeHealth(Status.DOWN, components);
-        when(healthEndpoint.health()).thenReturn(composite);
+        when(healthEndpoint.health()).thenReturn(createCompositeHealth(Status.DOWN, components));
 
         mockMvc.perform(get("/api/admin/health"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("DOWN"))
                 .andExpect(jsonPath("$.components.db.status").value("DOWN"))
                 .andExpect(jsonPath("$.components.db.details.error").value("Connection refused"));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void getHealth_asAdmin_noComponents_returnsEmptyComponents() throws Exception {
+        when(healthEndpoint.health()).thenReturn(Health.up().build());
+
+        mockMvc.perform(get("/api/admin/health"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"))
+                .andExpect(jsonPath("$.components").isEmpty());
     }
 
     @Test
@@ -91,17 +101,5 @@ class HealthControllerTest {
     void getHealth_unauthenticated_returns401() throws Exception {
         mockMvc.perform(get("/api/admin/health"))
                 .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    void getHealth_emptyComponents() throws Exception {
-        CompositeHealth composite = createCompositeHealth(Status.UP, new LinkedHashMap<>());
-        when(healthEndpoint.health()).thenReturn(composite);
-
-        mockMvc.perform(get("/api/admin/health"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("UP"))
-                .andExpect(jsonPath("$.components").isEmpty());
     }
 }

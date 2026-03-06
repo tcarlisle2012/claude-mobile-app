@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -12,37 +13,71 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/ThemeContext';
 import * as api from '../services/api';
 
-function getResponseTimeColor(ms: number): string {
-  if (ms < 100) return '#10B981';
-  if (ms < 500) return '#F59E0B';
-  return '#EF4444';
-}
+const getSpeedColor = (meanTimeMs: number): string => {
+  if (meanTimeMs < 100) return '#16A34A';
+  if (meanTimeMs < 500) return '#CA8A04';
+  return '#DC2626';
+};
+
+const getSpeedBg = (meanTimeMs: number): string => {
+  if (meanTimeMs < 100) return '#DCFCE7';
+  if (meanTimeMs < 500) return '#FEF9C3';
+  return '#FEE2E2';
+};
+
+const getMethodColor = (method: string): string => {
+  switch (method) {
+    case 'GET': return '#2563EB';
+    case 'POST': return '#16A34A';
+    case 'PUT': return '#CA8A04';
+    case 'DELETE': return '#DC2626';
+    default: return '#6B7280';
+  }
+};
 
 export default function MetricsScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation();
-  const [metrics, setMetrics] = useState<api.HttpRequestMetric[]>([]);
+  const [metrics, setMetrics] = useState<api.MetricsResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
 
   const fetchMetrics = useCallback(async () => {
     try {
       setError('');
       const data = await api.adminGetMetrics();
-      setMetrics(data.httpRequestMetrics);
+      setMetrics(data);
     } catch (err: unknown) {
-      setError(api.getErrorMessage(err));
+      setError(api.getErrorMessage(err) || t('metrics.loadError'));
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
-  }, []);
+  }, [t]);
 
   useFocusEffect(
     useCallback(() => {
-      setLoading(true);
       fetchMetrics();
     }, [fetchMetrics]),
   );
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchMetrics();
+  }, [fetchMetrics]);
+
+  const totalRequests = metrics
+    ? metrics.httpRequestMetrics.reduce((sum, m) => sum + m.count, 0)
+    : 0;
+
+  const avgResponseTime = metrics && totalRequests > 0
+    ? metrics.httpRequestMetrics.reduce((sum, m) => sum + m.totalTimeMs, 0) / totalRequests
+    : 0;
+
+  const sortedMetrics = metrics
+    ? [...metrics.httpRequestMetrics].sort((a, b) => b.count - a.count)
+    : [];
 
   if (loading) {
     return (
@@ -52,127 +87,102 @@ export default function MetricsScreen() {
     );
   }
 
-  if (error) {
-    return (
-      <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <Ionicons name="alert-circle-outline" size={48} color={colors.error} />
-        <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
-      </View>
-    );
-  }
-
-  if (metrics.length === 0) {
-    return (
-      <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <Ionicons name="analytics-outline" size={48} color={colors.textSecondary} />
-        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-          {t('metrics.noMetrics')}
-        </Text>
-      </View>
-    );
-  }
-
-  const sorted = [...metrics].sort((a, b) => b.count - a.count);
-  const totalRequests = metrics.reduce((sum, m) => sum + m.count, 0);
-  const totalTime = metrics.reduce((sum, m) => sum + m.totalTimeMs, 0);
-  const avgResponseTime =
-    totalRequests > 0
-      ? Math.round((totalTime / totalRequests) * 10) / 10
-      : 0;
-
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
-      contentContainerStyle={styles.contentContainer}
+      contentContainerStyle={styles.content}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor={colors.primary}
+        />
+      }
     >
-      {/* Summary Cards */}
-      <View style={styles.summaryRow}>
-        <View style={[styles.summaryCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Ionicons name="layers-outline" size={24} color={colors.primary} />
-          <Text style={[styles.summaryValue, { color: colors.text }]}>
-            {totalRequests}
-          </Text>
-          <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>
-            {t('metrics.totalRequests')}
-          </Text>
+      {error ? (
+        <View style={[styles.errorBox, { backgroundColor: '#FEE2E2' }]}>
+          <Ionicons name="alert-circle" size={18} color="#DC2626" />
+          <Text style={styles.errorText}>{error}</Text>
         </View>
-        <View style={[styles.summaryCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Ionicons name="timer-outline" size={24} color={colors.primary} />
-          <Text style={[styles.summaryValue, { color: colors.text }]}>
-            {avgResponseTime} {t('metrics.ms')}
-          </Text>
-          <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>
-            {t('metrics.avgResponseTime')}
-          </Text>
-        </View>
-      </View>
+      ) : null}
 
-      {/* Endpoint Cards */}
-      {sorted.map((metric, index) => (
-        <View
-          key={`${metric.method}-${metric.uri}-${metric.status}-${index}`}
-          style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}
-        >
-          <View style={styles.cardHeader}>
-            <View style={styles.methodBadge}>
-              <Text style={styles.methodText}>{metric.method}</Text>
-            </View>
-            <Text
-              style={[styles.uriText, { color: colors.text }]}
-              numberOfLines={1}
-            >
-              {metric.uri}
-            </Text>
-            <Text
-              style={[
-                styles.statusBadge,
-                {
-                  color: metric.status.startsWith('2') ? '#10B981' : '#EF4444',
-                },
-              ]}
-            >
-              {metric.status}
-            </Text>
-          </View>
-
-          <View style={[styles.statsRow, { borderTopColor: colors.border }]}>
-            <View style={styles.stat}>
-              <Text style={[styles.statValue, { color: colors.text }]}>
-                {metric.count}
+      {metrics && (
+        <>
+          <View style={[styles.summaryRow]}>
+            <View style={[styles.summaryCard, { backgroundColor: colors.surface }]}>
+              <Ionicons name="swap-vertical-outline" size={24} color={colors.primary} />
+              <Text style={[styles.summaryValue, { color: colors.text }]}>
+                {totalRequests}
               </Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
-                {t('metrics.count')}
+              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>
+                {t('metrics.totalRequests')}
               </Text>
             </View>
-            <View style={styles.stat}>
-              <Text
-                style={[
-                  styles.statValue,
-                  { color: getResponseTimeColor(metric.meanTimeMs) },
-                ]}
-              >
-                {metric.meanTimeMs} {t('metrics.ms')}
+            <View style={[styles.summaryCard, { backgroundColor: colors.surface }]}>
+              <Ionicons name="timer-outline" size={24} color={colors.primary} />
+              <Text style={[styles.summaryValue, { color: colors.text }]}>
+                {avgResponseTime.toFixed(1)} {t('metrics.ms')}
               </Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
-                {t('metrics.avgTime')}
-              </Text>
-            </View>
-            <View style={styles.stat}>
-              <Text
-                style={[
-                  styles.statValue,
-                  { color: getResponseTimeColor(metric.maxTimeMs) },
-                ]}
-              >
-                {metric.maxTimeMs} {t('metrics.ms')}
-              </Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
-                {t('metrics.maxTime')}
+              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>
+                {t('metrics.avgResponseTime')}
               </Text>
             </View>
           </View>
-        </View>
-      ))}
+
+          {sortedMetrics.length === 0 ? (
+            <View style={styles.center}>
+              <Ionicons name="analytics-outline" size={48} color={colors.textSecondary} />
+              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                {t('metrics.noMetrics')}
+              </Text>
+            </View>
+          ) : (
+            sortedMetrics.map((metric, index) => (
+              <View
+                key={`${metric.method}-${metric.uri}-${metric.status}-${index}`}
+                style={[styles.card, { backgroundColor: colors.surface }]}
+              >
+                <View style={styles.cardHeader}>
+                  <View style={[styles.methodBadge, { backgroundColor: getMethodColor(metric.method) + '20' }]}>
+                    <Text style={[styles.methodText, { color: getMethodColor(metric.method) }]}>
+                      {metric.method}
+                    </Text>
+                  </View>
+                  <Text style={[styles.uri, { color: colors.text }]} numberOfLines={1}>
+                    {metric.uri}
+                  </Text>
+                  <View style={[styles.statusBadge, { backgroundColor: metric.status.startsWith('2') ? '#DCFCE7' : '#FEE2E2' }]}>
+                    <Text style={[styles.statusText, { color: metric.status.startsWith('2') ? '#16A34A' : '#DC2626' }]}>
+                      {metric.status}
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={[styles.statsRow, { borderTopColor: colors.border }]}>
+                  <View style={styles.stat}>
+                    <Text style={[styles.statValue, { color: colors.text }]}>{metric.count}</Text>
+                    <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('metrics.count')}</Text>
+                  </View>
+                  <View style={styles.stat}>
+                    <View style={[styles.timeBadge, { backgroundColor: getSpeedBg(metric.meanTimeMs) }]}>
+                      <Text style={[styles.timeValue, { color: getSpeedColor(metric.meanTimeMs) }]}>
+                        {metric.meanTimeMs.toFixed(1)} {t('metrics.ms')}
+                      </Text>
+                    </View>
+                    <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('metrics.avgTime')}</Text>
+                  </View>
+                  <View style={styles.stat}>
+                    <Text style={[styles.statValue, { color: colors.text }]}>
+                      {metric.maxTimeMs.toFixed(1)} {t('metrics.ms')}
+                    </Text>
+                    <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('metrics.maxTime')}</Text>
+                  </View>
+                </View>
+              </View>
+            ))
+          )}
+        </>
+      )}
     </ScrollView>
   );
 }
@@ -181,95 +191,120 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  contentContainer: {
+  content: {
     padding: 16,
-    paddingBottom: 32,
+    gap: 12,
   },
   center: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
-  },
-  errorText: {
-    fontSize: 16,
-    marginTop: 12,
-    textAlign: 'center',
-  },
-  emptyText: {
-    fontSize: 16,
-    marginTop: 12,
-    textAlign: 'center',
+    padding: 24,
   },
   summaryRow: {
     flexDirection: 'row',
     gap: 12,
-    marginBottom: 16,
   },
   summaryCard: {
     flex: 1,
-    alignItems: 'center',
+    borderRadius: 16,
     padding: 16,
-    borderRadius: 12,
-    borderWidth: StyleSheet.hairlineWidth,
+    alignItems: 'center',
+    gap: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   summaryValue: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '700',
-    marginTop: 8,
   },
   summaryLabel: {
     fontSize: 12,
-    marginTop: 4,
+    fontWeight: '500',
   },
   card: {
-    borderRadius: 12,
-    borderWidth: StyleSheet.hairlineWidth,
-    marginBottom: 10,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
     overflow: 'hidden',
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
+    padding: 14,
     gap: 8,
   },
   methodBadge: {
-    backgroundColor: '#3B82F6',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
   },
   methodText: {
-    color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
   },
-  uriText: {
-    flex: 1,
+  uri: {
     fontSize: 14,
     fontWeight: '500',
+    flex: 1,
   },
   statusBadge: {
-    fontSize: 14,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  statusText: {
+    fontSize: 11,
     fontWeight: '700',
   },
   statsRow: {
     flexDirection: 'row',
     borderTopWidth: StyleSheet.hairlineWidth,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
   },
   stat: {
     flex: 1,
     alignItems: 'center',
+    gap: 4,
   },
   statValue: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
   },
   statLabel: {
     fontSize: 11,
-    marginTop: 2,
+    fontWeight: '500',
+  },
+  timeBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  timeValue: {
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  errorBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 12,
+    gap: 8,
+  },
+  errorText: {
+    color: '#DC2626',
+    fontSize: 14,
+    flex: 1,
+  },
+  emptyText: {
+    fontSize: 16,
+    marginTop: 12,
   },
 });

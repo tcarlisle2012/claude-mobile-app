@@ -134,6 +134,21 @@ export interface HealthResponse {
   components: Record<string, HealthComponent>;
 }
 
+// ---- Admin types ----
+
+export interface VerificationTokenDto {
+  id: number;
+  token: string;
+  expiryDate: string;
+  expired: boolean;
+}
+
+export interface UpdateUserRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
 // ---- Metrics types ----
 
 export interface HttpRequestMetric {
@@ -150,19 +165,16 @@ export interface MetricsResponse {
   httpRequestMetrics: HttpRequestMetric[];
 }
 
-// ---- Admin types ----
+// ---- Health endpoints ----
 
-export interface VerificationTokenDto {
-  id: number;
-  token: string;
-  expiryDate: string;
-  expired: boolean;
+export async function adminGetHealth(): Promise<HealthResponse> {
+  return request<HealthResponse>('/admin/health');
 }
 
-export interface UpdateUserRequest {
-  firstName: string;
-  lastName: string;
-  email: string;
+// ---- Metrics endpoints ----
+
+export async function adminGetMetrics(): Promise<MetricsResponse> {
+  return request<MetricsResponse>('/admin/metrics');
 }
 
 // ---- Admin endpoints ----

@@ -50,7 +50,7 @@ class MetricsControllerIntegrationTest {
     }
 
     @Test
-    void getMetrics_withAdminToken_returnsMetrics() throws Exception {
+    void getMetrics_asAdmin_returnsMetricsArray() throws Exception {
         mockMvc.perform(get("/api/admin/metrics")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
@@ -58,7 +58,7 @@ class MetricsControllerIntegrationTest {
     }
 
     @Test
-    void getMetrics_withoutToken_returns401() throws Exception {
+    void getMetrics_noAuth_returns401() throws Exception {
         mockMvc.perform(get("/api/admin/metrics"))
                 .andExpect(status().isUnauthorized());
     }

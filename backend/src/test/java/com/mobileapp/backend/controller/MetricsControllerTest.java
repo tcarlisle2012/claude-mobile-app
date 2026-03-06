@@ -12,7 +12,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -28,25 +28,39 @@ class MetricsControllerTest {
 
     @MockitoBean private EmailService emailService;
 
-    private void recordTimer(String method, String uri, String statusCode, Duration duration, int count) {
+    private void recordTestTimer(String method, String uri, String statusCode, int count, long avgNanos) {
         Timer timer = Timer.builder("http.server.requests")
                 .tag("method", method)
                 .tag("uri", uri)
                 .tag("status", statusCode)
                 .register(meterRegistry);
         for (int i = 0; i < count; i++) {
-            timer.record(duration);
+            timer.record(avgNanos, TimeUnit.NANOSECONDS);
         }
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getMetrics_returnsHttpRequestMetrics() throws Exception {
-        recordTimer("GET", "/api/test", "200", Duration.ofMillis(50), 5);
+    void getMetrics_asAdmin_returns200WithMetrics() throws Exception {
+        recordTestTimer("GET", "/api/test/endpoint", "200", 5, 50_000_000L);
 
         mockMvc.perform(get("/api/admin/metrics"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.httpRequestMetrics").isArray());
+                .andExpect(jsonPath("$.httpRequestMetrics").isArray())
+                .andExpect(jsonPath("$.httpRequestMetrics.length()").value(
+                        org.hamcrest.Matchers.greaterThanOrEqualTo(1)));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void getMetrics_asAdmin_returnsCorrectStructure() throws Exception {
+        recordTestTimer("POST", "/api/test/structure", "201", 3, 100_000_000L);
+
+        mockMvc.perform(get("/api/admin/metrics"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.httpRequestMetrics[?(@.uri == '/api/test/structure')].method").value("POST"))
+                .andExpect(jsonPath("$.httpRequestMetrics[?(@.uri == '/api/test/structure')].status").value("201"))
+                .andExpect(jsonPath("$.httpRequestMetrics[?(@.uri == '/api/test/structure')].count").value(3));
     }
 
     @Test
@@ -60,18 +74,5 @@ class MetricsControllerTest {
     void getMetrics_unauthenticated_returns401() throws Exception {
         mockMvc.perform(get("/api/admin/metrics"))
                 .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    void getMetrics_containsExpectedFields() throws Exception {
-        recordTimer("POST", "/api/test/create", "201", Duration.ofMillis(100), 3);
-
-        mockMvc.perform(get("/api/admin/metrics"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.httpRequestMetrics[?(@.uri == '/api/test/create')].method").exists())
-                .andExpect(jsonPath("$.httpRequestMetrics[?(@.uri == '/api/test/create')].count").exists())
-                .andExpect(jsonPath("$.httpRequestMetrics[?(@.uri == '/api/test/create')].meanTimeMs").exists())
-                .andExpect(jsonPath("$.httpRequestMetrics[?(@.uri == '/api/test/create')].maxTimeMs").exists());
     }
 }
