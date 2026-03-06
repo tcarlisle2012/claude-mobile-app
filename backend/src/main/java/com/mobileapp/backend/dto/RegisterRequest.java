@@ -40,4 +40,10 @@ public class RegisterRequest {
 
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
+
+    @Override
+    public String toString() {
+        return "RegisterRequest{username='" + username + "', email='" + email +
+                "', firstName='" + firstName + "', lastName='" + lastName + "'}";
+    }
 }

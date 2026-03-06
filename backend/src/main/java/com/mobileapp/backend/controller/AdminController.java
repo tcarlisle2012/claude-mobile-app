@@ -7,7 +7,6 @@ import com.mobileapp.backend.dto.VerificationTokenDto;
 import com.mobileapp.backend.service.UserService;
 import com.mobileapp.backend.util.Messages;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,56 +26,55 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<UserDto>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public List<UserDto> getAllUsers() {
+        return userService.getAllUsers();
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<UserDto> getUser(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    public UserDto getUser(@PathVariable Long id) {
+        return userService.getUserById(id);
     }
 
     @PutMapping("/users/{id}")
-    public ResponseEntity<UserDto> updateUser(
+    public UserDto updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserRequest request) {
-        return ResponseEntity.ok(userService.updateUser(id, request));
+        return userService.updateUser(id, request);
     }
 
     @PutMapping("/users/{id}/toggle-enabled")
-    public ResponseEntity<UserDto> toggleEnabled(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.toggleUserEnabled(id));
+    public UserDto toggleEnabled(@PathVariable Long id) {
+        return userService.toggleUserEnabled(id);
     }
 
     @PutMapping("/users/{id}/toggle-locked")
-    public ResponseEntity<UserDto> toggleLocked(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.toggleUserLocked(id));
+    public UserDto toggleLocked(@PathVariable Long id) {
+        return userService.toggleUserLocked(id);
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<ApiResponse> deleteUser(@PathVariable Long id) {
+    public ApiResponse deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
-        return ResponseEntity.ok(ApiResponse.success(messages.get("admin.success.user-deleted")));
+        return ApiResponse.success(messages.get("admin.success.user-deleted"));
     }
 
     @GetMapping("/users/{id}/token")
-    public ResponseEntity<Object> getVerificationToken(@PathVariable Long id) {
+    public Object getVerificationToken(@PathVariable Long id) {
         VerificationTokenDto token = userService.getVerificationToken(id);
         if (token == null) {
-            return ResponseEntity.ok(ApiResponse.success(messages.get("admin.info.no-token")));
+            return ApiResponse.success(messages.get("admin.info.no-token"));
         }
-        return ResponseEntity.ok(token);
+        return token;
     }
 
     @DeleteMapping("/users/{id}/token")
-    public ResponseEntity<ApiResponse> deleteVerificationToken(@PathVariable Long id) {
+    public ApiResponse deleteVerificationToken(@PathVariable Long id) {
         userService.deleteVerificationToken(id);
-        return ResponseEntity.ok(ApiResponse.success(messages.get("admin.success.token-deleted")));
+        return ApiResponse.success(messages.get("admin.success.token-deleted"));
     }
 
     @PostMapping("/users/{id}/token")
-    public ResponseEntity<VerificationTokenDto> regenerateVerificationToken(
-            @PathVariable Long id) {
-        return ResponseEntity.ok(userService.regenerateVerificationToken(id));
+    public VerificationTokenDto regenerateVerificationToken(@PathVariable Long id) {
+        return userService.regenerateVerificationToken(id);
     }
 }

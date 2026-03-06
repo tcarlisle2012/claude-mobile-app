@@ -4,7 +4,6 @@ import org.springframework.boot.actuate.health.CompositeHealth;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthComponent;
 import org.springframework.boot.actuate.health.HealthEndpoint;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +24,7 @@ public class HealthController {
     }
 
     @GetMapping("/health")
-    public ResponseEntity<Map<String, Object>> getHealth() {
+    public Map<String, Object> getHealth() {
         HealthComponent healthComponent = healthEndpoint.health();
 
         Map<String, Object> response = new LinkedHashMap<>();
@@ -51,6 +50,6 @@ public class HealthController {
         }
 
         response.put("components", components);
-        return ResponseEntity.ok(response);
+        return response;
     }
 }

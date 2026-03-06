@@ -28,14 +28,13 @@ public class AuthController {
     }
 
     @GetMapping("/verify")
-    public ResponseEntity<ApiResponse> verifyEmail(@RequestParam String token) {
+    public ApiResponse verifyEmail(@RequestParam String token) {
         String message = authService.verifyEmail(token);
-        return ResponseEntity.ok(ApiResponse.success(message));
+        return ApiResponse.success(message);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        AuthResponse response = authService.login(request);
-        return ResponseEntity.ok(response);
+    public AuthResponse login(@Valid @RequestBody LoginRequest request) {
+        return authService.login(request);
     }
 }
