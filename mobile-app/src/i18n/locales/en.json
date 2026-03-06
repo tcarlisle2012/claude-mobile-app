@@ -111,14 +111,29 @@
       "emailInvalid": "Please enter a valid email"
     }
   },
+  "health": {
+    "overallStatus": "Overall Status",
+    "up": "UP",
+    "down": "DOWN",
+    "noComponents": "No health components found",
+    "loadError": "Failed to load health status",
+    "components": {
+      "db": "Database",
+      "diskSpace": "Disk Space",
+      "mail": "Mail Server",
+      "ping": "Ping"
+    }
+  },
   "drawer": {
     "home": "Home",
     "settings": "Settings",
     "users": "Users",
+    "health": "Health",
     "signOut": "Sign Out"
   },
   "navigation": {
     "users": "Users",
-    "userDetails": "User Details"
+    "userDetails": "User Details",
+    "health": "Health"
   }
 }

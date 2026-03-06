@@ -61,6 +61,16 @@ app:
     password: admin
     email: admin@mobileapp.com
 
+# ─── Actuator ─────────────────────────────────────────────────────
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health
+
 # ─── Logging ───────────────────────────────────────────────────────
 logging:
   level:

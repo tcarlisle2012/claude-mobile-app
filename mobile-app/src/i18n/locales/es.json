@@ -111,14 +111,29 @@
       "emailInvalid": "Por favor, ingrese un correo electr\u00f3nico v\u00e1lido"
     }
   },
+  "health": {
+    "overallStatus": "Estado general",
+    "up": "ACTIVO",
+    "down": "INACTIVO",
+    "noComponents": "No se encontraron componentes de salud",
+    "loadError": "Error al cargar el estado de salud",
+    "components": {
+      "db": "Base de datos",
+      "diskSpace": "Espacio en disco",
+      "mail": "Servidor de correo",
+      "ping": "Ping"
+    }
+  },
   "drawer": {
     "home": "Inicio",
     "settings": "Configuraci\u00f3n",
     "users": "Usuarios",
+    "health": "Salud",
     "signOut": "Cerrar sesi\u00f3n"
   },
   "navigation": {
     "users": "Usuarios",
-    "userDetails": "Detalles del usuario"
+    "userDetails": "Detalles del usuario",
+    "health": "Salud"
   }
 }

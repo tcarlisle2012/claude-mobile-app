@@ -111,14 +111,29 @@
       "emailInvalid": "Veuillez entrer un courriel valide"
     }
   },
+  "health": {
+    "overallStatus": "\u00c9tat g\u00e9n\u00e9ral",
+    "up": "ACTIF",
+    "down": "INACTIF",
+    "noComponents": "Aucun composant de sant\u00e9 trouv\u00e9",
+    "loadError": "\u00c9chec du chargement de l'\u00e9tat de sant\u00e9",
+    "components": {
+      "db": "Base de donn\u00e9es",
+      "diskSpace": "Espace disque",
+      "mail": "Serveur de messagerie",
+      "ping": "Ping"
+    }
+  },
   "drawer": {
     "home": "Accueil",
     "settings": "Param\u00e8tres",
     "users": "Utilisateurs",
+    "health": "Sant\u00e9",
     "signOut": "Se d\u00e9connecter"
   },
   "navigation": {
     "users": "Utilisateurs",
-    "userDetails": "D\u00e9tails de l'utilisateur"
+    "userDetails": "D\u00e9tails de l'utilisateur",
+    "health": "Sant\u00e9"
   }
 }
