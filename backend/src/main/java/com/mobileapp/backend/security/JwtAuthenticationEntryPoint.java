@@ -1,6 +1,6 @@
 package com.mobileapp.backend.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.MessageSource;
@@ -15,7 +15,7 @@ import java.util.Map;
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonMapper jsonMapper = JsonMapper.builder().build();
     private final MessageSource messageSource;
     private final FailedAuthAttemptStore failedAuthAttemptStore;
 
@@ -44,6 +44,6 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
                 "path", request.getServletPath()
         );
 
-        objectMapper.writeValue(response.getOutputStream(), body);
+        jsonMapper.writeValue(response.getOutputStream(), body);
     }
 }

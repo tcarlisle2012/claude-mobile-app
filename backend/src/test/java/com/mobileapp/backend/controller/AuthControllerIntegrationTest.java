@@ -1,6 +1,6 @@
 package com.mobileapp.backend.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.mobileapp.backend.dto.LoginRequest;
 import com.mobileapp.backend.dto.RegisterRequest;
 import com.mobileapp.backend.entity.User;
@@ -11,7 +11,7 @@ import com.mobileapp.backend.util.TestDataFactory;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AuthControllerIntegrationTest {
 
     @Autowired private MockMvc mockMvc;
-    @Autowired private ObjectMapper objectMapper;
+    @Autowired private JsonMapper jsonMapper;
     @Autowired private VerificationTokenRepository tokenRepository;
 
     @MockitoBean private EmailService emailService;
@@ -56,7 +56,7 @@ class AuthControllerIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(jsonMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
     }
 
@@ -83,7 +83,7 @@ class AuthControllerIntegrationTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .content(jsonMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").isNotEmpty())
                 .andExpect(jsonPath("$.tokenType").value("Bearer"))
@@ -100,7 +100,7 @@ class AuthControllerIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(duplicate)))
+                        .content(jsonMapper.writeValueAsString(duplicate)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Username is already taken"));
     }
@@ -115,7 +115,7 @@ class AuthControllerIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(duplicate)))
+                        .content(jsonMapper.writeValueAsString(duplicate)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Email is already registered"));
     }
@@ -131,7 +131,7 @@ class AuthControllerIntegrationTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .content(jsonMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isForbidden());
     }
 
@@ -144,7 +144,7 @@ class AuthControllerIntegrationTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .content(jsonMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -156,7 +156,7 @@ class AuthControllerIntegrationTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .content(jsonMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isUnauthorized());
     }
 

@@ -1,6 +1,6 @@
 package com.mobileapp.backend.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.mobileapp.backend.dto.LoginRequest;
 import com.mobileapp.backend.dto.RegisterRequest;
 import com.mobileapp.backend.entity.User;
@@ -9,7 +9,7 @@ import com.mobileapp.backend.service.EmailService;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class SecurityConfigIntegrationTest {
 
     @Autowired private MockMvc mockMvc;
-    @Autowired private ObjectMapper objectMapper;
+    @Autowired private JsonMapper jsonMapper;
 
     @MockitoBean private EmailService emailService;
 
@@ -55,7 +55,7 @@ class SecurityConfigIntegrationTest {
         // Register should return 201, not 401
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest)))
+                        .content(jsonMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().isCreated());
 
         // Login with bad credentials returns 401 (from BadCredentials, not from security filter)
@@ -65,7 +65,7 @@ class SecurityConfigIntegrationTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .content(jsonMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isUnauthorized());
 
         // Verify with bad token returns 400, not 401
@@ -96,7 +96,7 @@ class SecurityConfigIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)));
+                .content(jsonMapper.writeValueAsString(request)));
 
         ArgumentCaptor<VerificationToken> captor = ArgumentCaptor.forClass(VerificationToken.class);
         verify(emailService).sendVerificationEmail(any(User.class), captor.capture(), any(Locale.class));
@@ -111,10 +111,10 @@ class SecurityConfigIntegrationTest {
 
         MvcResult result = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .content(jsonMapper.writeValueAsString(loginRequest)))
                 .andReturn();
 
-        String token = objectMapper.readTree(result.getResponse().getContentAsString())
+        String token = jsonMapper.readTree(result.getResponse().getContentAsString())
                 .get("accessToken").asText();
 
         // Access admin endpoint → 403
@@ -141,7 +141,7 @@ class SecurityConfigIntegrationTest {
         // This should return 401 (bad credentials), not 403 (CSRF)
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .content(jsonMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -153,7 +153,7 @@ class SecurityConfigIntegrationTest {
 
         MvcResult result = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .content(jsonMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
                 .andReturn();
 

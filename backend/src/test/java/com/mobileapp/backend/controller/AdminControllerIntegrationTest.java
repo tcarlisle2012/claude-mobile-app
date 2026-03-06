@@ -1,6 +1,6 @@
 package com.mobileapp.backend.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.mobileapp.backend.dto.LoginRequest;
 import com.mobileapp.backend.dto.RegisterRequest;
 import com.mobileapp.backend.dto.UpdateUserRequest;
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AdminControllerIntegrationTest {
 
     @Autowired private MockMvc mockMvc;
-    @Autowired private ObjectMapper objectMapper;
+    @Autowired private JsonMapper jsonMapper;
     @Autowired private UserRepository userRepository;
 
     @MockitoBean private EmailService emailService;
@@ -53,11 +53,11 @@ class AdminControllerIntegrationTest {
 
         MvcResult result = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .content(jsonMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        adminToken = objectMapper.readTree(result.getResponse().getContentAsString())
+        adminToken = jsonMapper.readTree(result.getResponse().getContentAsString())
                 .get("accessToken").asText();
     }
 
@@ -73,7 +73,7 @@ class AdminControllerIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(jsonMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
 
         return userRepository.findByUsername("testuser").orElseThrow().getId();
@@ -91,7 +91,7 @@ class AdminControllerIntegrationTest {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)));
+                        .content(jsonMapper.writeValueAsString(request)));
 
         // Capture token and verify
         ArgumentCaptor<VerificationToken> captor = ArgumentCaptor.forClass(VerificationToken.class);
@@ -106,10 +106,10 @@ class AdminControllerIntegrationTest {
 
         MvcResult result = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .content(jsonMapper.writeValueAsString(loginRequest)))
                 .andReturn();
 
-        return objectMapper.readTree(result.getResponse().getContentAsString())
+        return jsonMapper.readTree(result.getResponse().getContentAsString())
                 .get("accessToken").asText();
     }
 
@@ -172,7 +172,7 @@ class AdminControllerIntegrationTest {
         mockMvc.perform(put("/api/admin/users/" + userId)
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateRequest)))
+                        .content(jsonMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName").value("UpdatedFirst"))
                 .andExpect(jsonPath("$.lastName").value("UpdatedLast"))
