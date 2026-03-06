@@ -5,42 +5,42 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Map;
 
 @Component
-public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final MessageSource messageSource;
     private final FailedAuthAttemptStore failedAuthAttemptStore;
 
-    public JwtAuthenticationEntryPoint(MessageSource messageSource,
-                                       FailedAuthAttemptStore failedAuthAttemptStore) {
+    public CustomAccessDeniedHandler(MessageSource messageSource,
+                                     FailedAuthAttemptStore failedAuthAttemptStore) {
         this.messageSource = messageSource;
         this.failedAuthAttemptStore = failedAuthAttemptStore;
     }
 
     @Override
-    public void commence(HttpServletRequest request,
-                         HttpServletResponse response,
-                         AuthenticationException authException) throws IOException {
-        failedAuthAttemptStore.record(request, HttpServletResponse.SC_UNAUTHORIZED);
+    public void handle(HttpServletRequest request,
+                       HttpServletResponse response,
+                       AccessDeniedException accessDeniedException) throws IOException {
+        failedAuthAttemptStore.record(request, HttpServletResponse.SC_FORBIDDEN);
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
         String errorLabel = messageSource.getMessage(
-                "auth.error.unauthorized", null, "Unauthorized", request.getLocale());
+                "auth.error.access-denied", null, "Forbidden", request.getLocale());
 
         Map<String, Object> body = Map.of(
-                "status", HttpServletResponse.SC_UNAUTHORIZED,
+                "status", HttpServletResponse.SC_FORBIDDEN,
                 "error", errorLabel,
-                "message", authException.getMessage(),
+                "message", accessDeniedException.getMessage(),
                 "path", request.getServletPath()
         );
 

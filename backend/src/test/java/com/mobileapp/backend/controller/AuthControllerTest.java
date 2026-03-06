@@ -5,7 +5,9 @@ import com.mobileapp.backend.config.SecurityConfig;
 import com.mobileapp.backend.dto.AuthResponse;
 import com.mobileapp.backend.dto.LoginRequest;
 import com.mobileapp.backend.dto.RegisterRequest;
+import com.mobileapp.backend.security.CustomAccessDeniedHandler;
 import com.mobileapp.backend.security.CustomUserDetailsService;
+import com.mobileapp.backend.security.FailedAuthAttemptStore;
 import com.mobileapp.backend.security.JwtAuthenticationEntryPoint;
 import com.mobileapp.backend.security.JwtAuthenticationFilter;
 import com.mobileapp.backend.security.JwtTokenProvider;
@@ -31,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AuthController.class)
-@Import({SecurityConfig.class, JwtAuthenticationFilter.class, JwtAuthenticationEntryPoint.class})
+@Import({SecurityConfig.class, JwtAuthenticationFilter.class, JwtAuthenticationEntryPoint.class, FailedAuthAttemptStore.class, CustomAccessDeniedHandler.class})
 class AuthControllerTest {
 
     @Autowired private MockMvc mockMvc;

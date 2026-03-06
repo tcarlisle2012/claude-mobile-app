@@ -1,5 +1,6 @@
 package com.mobileapp.backend.config;
 
+import com.mobileapp.backend.security.CustomAccessDeniedHandler;
 import com.mobileapp.backend.security.JwtAuthenticationEntryPoint;
 import com.mobileapp.backend.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,14 +29,17 @@ public class SecurityConfig {
 
     private final JwtAuthenticationEntryPoint authEntryPoint;
     private final JwtAuthenticationFilter jwtAuthFilter;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
 
     @Value("${app.cors.allowed-origins:*}")
     private String allowedOrigins;
 
     public SecurityConfig(JwtAuthenticationEntryPoint authEntryPoint,
-                          JwtAuthenticationFilter jwtAuthFilter) {
+                          JwtAuthenticationFilter jwtAuthFilter,
+                          CustomAccessDeniedHandler accessDeniedHandler) {
         this.authEntryPoint = authEntryPoint;
         this.jwtAuthFilter = jwtAuthFilter;
+        this.accessDeniedHandler = accessDeniedHandler;
     }
 
     @Bean
@@ -55,7 +59,9 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             // CSRF is disabled because this is a stateless REST API using JWT tokens (NOSONAR)
             .csrf(csrf -> csrf.disable())
-            .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint(authEntryPoint)
+                .accessDeniedHandler(accessDeniedHandler))
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth

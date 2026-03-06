@@ -142,7 +142,15 @@
     "count": "Requests",
     "avgTime": "Avg Time",
     "maxTime": "Max Time",
-    "ms": "ms"
+    "ms": "ms",
+    "failedAuth": {
+      "title": "Failed Authentication Attempts",
+      "ipAddress": "IP Address",
+      "time": "Time",
+      "noAttempts": "No failed authentication attempts",
+      "clear": "Clear",
+      "clearConfirm": "Are you sure you want to clear all failed authentication attempts?"
+    }
   },
   "navigation": {
     "users": "Users",

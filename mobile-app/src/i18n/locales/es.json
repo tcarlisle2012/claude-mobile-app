@@ -5,55 +5,55 @@
     "cancel": "Cancelar",
     "delete": "Eliminar",
     "save": "Guardar",
-    "signIn": "Iniciar sesi\u00f3n",
+    "signIn": "Iniciar sesión",
     "signUp": "Registrarse",
-    "signOut": "Cerrar sesi\u00f3n"
+    "signOut": "Cerrar sesión"
   },
   "login": {
     "title": "Bienvenido de nuevo",
-    "subtitle": "Inicie sesi\u00f3n en su cuenta",
+    "subtitle": "Inicie sesión en su cuenta",
     "usernameLabel": "Nombre de usuario",
     "usernamePlaceholder": "Ingrese su nombre de usuario",
-    "passwordLabel": "Contrase\u00f1a",
-    "passwordPlaceholder": "Ingrese su contrase\u00f1a",
-    "submitButton": "Iniciar sesi\u00f3n",
-    "emptyFieldsError": "Por favor, ingrese su nombre de usuario y contrase\u00f1a.",
-    "fallbackError": "Error al iniciar sesi\u00f3n. Por favor, int\u00e9ntelo de nuevo.",
-    "noAccount": "\u00bfNo tiene una cuenta? ",
+    "passwordLabel": "Contraseña",
+    "passwordPlaceholder": "Ingrese su contraseña",
+    "submitButton": "Iniciar sesión",
+    "emptyFieldsError": "Por favor, ingrese su nombre de usuario y contraseña.",
+    "fallbackError": "Error al iniciar sesión. Por favor, inténtelo de nuevo.",
+    "noAccount": "¿No tiene una cuenta? ",
     "signUpLink": "Registrarse"
   },
   "register": {
     "title": "Crear cuenta",
-    "subtitle": "Reg\u00edstrese para comenzar",
+    "subtitle": "Regístrese para comenzar",
     "firstNameLabel": "Nombre",
     "firstNamePlaceholder": "Juan",
     "lastNameLabel": "Apellido",
-    "lastNamePlaceholder": "Garc\u00eda",
+    "lastNamePlaceholder": "García",
     "usernameLabel": "Nombre de usuario",
     "usernamePlaceholder": "juan_garcia",
-    "emailLabel": "Correo electr\u00f3nico",
+    "emailLabel": "Correo electrónico",
     "emailPlaceholder": "juan@ejemplo.com",
-    "passwordLabel": "Contrase\u00f1a",
-    "passwordPlaceholder": "M\u00edn. 8 caracteres",
+    "passwordLabel": "Contraseña",
+    "passwordPlaceholder": "Mín. 8 caracteres",
     "submitButton": "Crear cuenta",
     "successTitle": "Registro exitoso",
-    "fallbackError": "Error en el registro. Por favor, int\u00e9ntelo de nuevo.",
-    "hasAccount": "\u00bfYa tiene una cuenta? ",
-    "signInLink": "Iniciar sesi\u00f3n",
+    "fallbackError": "Error en el registro. Por favor, inténtelo de nuevo.",
+    "hasAccount": "¿Ya tiene una cuenta? ",
+    "signInLink": "Iniciar sesión",
     "validation": {
       "firstNameRequired": "El nombre es obligatorio",
       "lastNameRequired": "El apellido es obligatorio",
       "usernameRequired": "El nombre de usuario es obligatorio",
       "usernameMinLength": "El nombre de usuario debe tener al menos 3 caracteres",
-      "emailRequired": "El correo electr\u00f3nico es obligatorio",
-      "emailInvalid": "Por favor, ingrese un correo electr\u00f3nico v\u00e1lido",
-      "passwordRequired": "La contrase\u00f1a es obligatoria",
-      "passwordMinLength": "La contrase\u00f1a debe tener al menos 8 caracteres"
+      "emailRequired": "El correo electrónico es obligatorio",
+      "emailInvalid": "Por favor, ingrese un correo electrónico válido",
+      "passwordRequired": "La contraseña es obligatoria",
+      "passwordMinLength": "La contraseña debe tener al menos 8 caracteres"
     }
   },
   "home": {
     "greeting": "Hola Mundo",
-    "subtitle": "Bienvenido a su nueva aplicaci\u00f3n"
+    "subtitle": "Bienvenido a su nueva aplicación"
   },
   "settings": {
     "appearance": "Apariencia",
@@ -76,25 +76,25 @@
     "editProfile": "Editar perfil",
     "firstNameLabel": "Nombre",
     "lastNameLabel": "Apellido",
-    "emailLabel": "Correo electr\u00f3nico",
+    "emailLabel": "Correo electrónico",
     "saveChanges": "Guardar cambios",
     "updateSuccess": "Usuario actualizado exitosamente",
     "updateError": "Error al actualizar el usuario",
     "accountStatus": "Estado de la cuenta",
     "accountEnabled": "Cuenta habilitada",
-    "enabledHint": "El usuario puede iniciar sesi\u00f3n cuando est\u00e1 habilitado",
+    "enabledHint": "El usuario puede iniciar sesión cuando está habilitado",
     "accountLocked": "Cuenta bloqueada",
-    "lockedHint": "Las cuentas bloqueadas no pueden iniciar sesi\u00f3n",
-    "toggleEnabledError": "Error al cambiar el estado de habilitaci\u00f3n",
+    "lockedHint": "Las cuentas bloqueadas no pueden iniciar sesión",
+    "toggleEnabledError": "Error al cambiar el estado de habilitación",
     "toggleLockedError": "Error al cambiar el estado de bloqueo",
-    "verificationToken": "Token de verificaci\u00f3n",
+    "verificationToken": "Token de verificación",
     "tokenLabel": "Token",
     "expiresLabel": "Expira",
     "expired": "Expirado",
     "active": "Activo",
     "deleteToken": "Eliminar token",
-    "resendVerification": "Reenviar verificaci\u00f3n",
-    "noToken": "No existe un token de verificaci\u00f3n para este usuario.",
+    "resendVerification": "Reenviar verificación",
+    "noToken": "No existe un token de verificación para este usuario.",
     "generateNewToken": "Generar nuevo token",
     "deleteTokenError": "Error al eliminar el token",
     "regenerateTokenError": "Error al regenerar el token",
@@ -102,14 +102,14 @@
     "dangerDescription": "Eliminar permanentemente este usuario y todos sus datos asociados.",
     "deleteUser": "Eliminar usuario",
     "deleteUserTitle": "Eliminar usuario",
-    "deleteUserConfirm": "\u00bfEst\u00e1 seguro de que desea eliminar a {{username}}? Esta acci\u00f3n no se puede deshacer.",
+    "deleteUserConfirm": "¿Está seguro de que desea eliminar a {{username}}? Esta acción no se puede deshacer.",
     "deleteUserError": "Error al eliminar el usuario",
     "loadError": "Error al cargar el usuario",
     "validation": {
       "firstNameRequired": "El nombre es obligatorio",
       "lastNameRequired": "El apellido es obligatorio",
-      "emailRequired": "El correo electr\u00f3nico es obligatorio",
-      "emailInvalid": "Por favor, ingrese un correo electr\u00f3nico v\u00e1lido"
+      "emailRequired": "El correo electrónico es obligatorio",
+      "emailInvalid": "Por favor, ingrese un correo electrónico válido"
     }
   },
   "health": {
@@ -118,7 +118,7 @@
     "down": "INACTIVO",
     "noComponents": "No se encontraron componentes de salud",
     "loadError": "Error al cargar el estado de salud",
-    "viewMetrics": "Ver m\u00e9tricas",
+    "viewMetrics": "Ver métricas",
     "components": {
       "db": "Base de datos",
       "diskSpace": "Espacio en disco",
@@ -128,26 +128,34 @@
   },
   "drawer": {
     "home": "Inicio",
-    "settings": "Configuraci\u00f3n",
+    "settings": "Configuración",
     "users": "Usuarios",
     "health": "Salud",
-    "metrics": "M\u00e9tricas",
-    "signOut": "Cerrar sesi\u00f3n"
+    "metrics": "Métricas",
+    "signOut": "Cerrar sesión"
   },
   "metrics": {
     "totalRequests": "Total de solicitudes",
     "avgResponseTime": "Tiempo promedio",
-    "noMetrics": "No se han registrado m\u00e9tricas de solicitudes",
-    "loadError": "Error al cargar las m\u00e9tricas",
+    "noMetrics": "No se han registrado métricas de solicitudes",
+    "loadError": "Error al cargar las métricas",
     "count": "Solicitudes",
     "avgTime": "Tiempo prom.",
-    "maxTime": "Tiempo m\u00e1x.",
-    "ms": "ms"
+    "maxTime": "Tiempo máx.",
+    "ms": "ms",
+    "failedAuth": {
+      "title": "Intentos de autenticación fallidos",
+      "ipAddress": "Dirección IP",
+      "time": "Hora",
+      "noAttempts": "Sin intentos de autenticación fallidos",
+      "clear": "Borrar",
+      "clearConfirm": "¿Está seguro de que desea borrar todos los intentos de autenticación fallidos?"
+    }
   },
   "navigation": {
     "users": "Usuarios",
     "userDetails": "Detalles del usuario",
     "health": "Salud",
-    "metrics": "M\u00e9tricas"
+    "metrics": "Métricas"
   }
 }

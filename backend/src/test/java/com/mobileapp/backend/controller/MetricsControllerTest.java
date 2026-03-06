@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.concurrent.TimeUnit;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -53,6 +54,14 @@ class MetricsControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
+    void getMetrics_asAdmin_returnsFailedAuthAttemptsArray() throws Exception {
+        mockMvc.perform(get("/api/admin/metrics"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.failedAuthAttempts").isArray());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
     void getMetrics_asAdmin_returnsCorrectStructure() throws Exception {
         recordTestTimer("POST", "/api/test/structure", "201", 3, 100_000_000L);
 
@@ -73,6 +82,26 @@ class MetricsControllerTest {
     @Test
     void getMetrics_unauthenticated_returns401() throws Exception {
         mockMvc.perform(get("/api/admin/metrics"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void clearFailedAuth_asAdmin_returns204() throws Exception {
+        mockMvc.perform(delete("/api/admin/metrics/failed-auth"))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void clearFailedAuth_asUser_returns403() throws Exception {
+        mockMvc.perform(delete("/api/admin/metrics/failed-auth"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void clearFailedAuth_unauthenticated_returns401() throws Exception {
+        mockMvc.perform(delete("/api/admin/metrics/failed-auth"))
                 .andExpect(status().isUnauthorized());
     }
 }

@@ -1,12 +1,14 @@
 package com.mobileapp.backend.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mobileapp.backend.dto.FailedAuthAttempt;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.MessageSource;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.BadCredentialsException;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -18,7 +20,8 @@ import static org.mockito.Mockito.when;
 class JwtAuthenticationEntryPointTest {
 
     private final MessageSource messageSource = mock(MessageSource.class);
-    private final JwtAuthenticationEntryPoint entryPoint = new JwtAuthenticationEntryPoint(messageSource);
+    private final FailedAuthAttemptStore store = new FailedAuthAttemptStore();
+    private final JwtAuthenticationEntryPoint entryPoint = new JwtAuthenticationEntryPoint(messageSource, store);
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
@@ -43,5 +46,25 @@ class JwtAuthenticationEntryPointTest {
         assertThat(body.get("error")).isEqualTo("Unauthorized");
         assertThat(body.get("message")).isEqualTo("Full authentication is required");
         assertThat(body.get("path")).isEqualTo("/api/user/me");
+    }
+
+    @Test
+    void commence_recordsFailedAttemptInStore() throws Exception {
+        when(messageSource.getMessage(anyString(), any(), anyString(), any(Locale.class)))
+                .thenReturn("Unauthorized");
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setServletPath("/api/admin/health");
+        request.setRemoteAddr("10.0.0.5");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        entryPoint.commence(request, response,
+                new BadCredentialsException("No token"));
+
+        List<FailedAuthAttempt> attempts = store.getRecentAttempts();
+        assertThat(attempts).hasSize(1);
+        assertThat(attempts.get(0).getStatus()).isEqualTo(401);
+        assertThat(attempts.get(0).getIpAddress()).isEqualTo("10.0.0.5");
+        assertThat(attempts.get(0).getPath()).isEqualTo("/api/admin/health");
     }
 }

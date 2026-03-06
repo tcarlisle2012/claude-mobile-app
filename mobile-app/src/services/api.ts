@@ -85,7 +85,8 @@ async function request<T>(
     headers,
   });
 
-  const data = await response.json();
+  const text = await response.text();
+  const data = text ? JSON.parse(text) : null;
 
   if (!response.ok) {
     throw data as ApiResponse;
@@ -161,8 +162,17 @@ export interface HttpRequestMetric {
   maxTimeMs: number;
 }
 
+export interface FailedAuthAttempt {
+  ipAddress: string;
+  method: string;
+  path: string;
+  status: number;
+  timestamp: string;
+}
+
 export interface MetricsResponse {
   httpRequestMetrics: HttpRequestMetric[];
+  failedAuthAttempts: FailedAuthAttempt[];
 }
 
 // ---- Health endpoints ----
@@ -175,6 +185,10 @@ export async function adminGetHealth(): Promise<HealthResponse> {
 
 export async function adminGetMetrics(): Promise<MetricsResponse> {
   return request<MetricsResponse>('/admin/metrics');
+}
+
+export async function adminClearFailedAuth(): Promise<void> {
+  await request<void>('/admin/metrics/failed-auth', { method: 'DELETE' });
 }
 
 // ---- Admin endpoints ----

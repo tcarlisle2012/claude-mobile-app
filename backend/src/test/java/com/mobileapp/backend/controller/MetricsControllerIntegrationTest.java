@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -54,12 +55,26 @@ class MetricsControllerIntegrationTest {
         mockMvc.perform(get("/api/admin/metrics")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.httpRequestMetrics").isArray());
+                .andExpect(jsonPath("$.httpRequestMetrics").isArray())
+                .andExpect(jsonPath("$.failedAuthAttempts").isArray());
     }
 
     @Test
     void getMetrics_noAuth_returns401() throws Exception {
         mockMvc.perform(get("/api/admin/metrics"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void clearFailedAuth_asAdmin_returns204() throws Exception {
+        mockMvc.perform(delete("/api/admin/metrics/failed-auth")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void clearFailedAuth_noAuth_returns401() throws Exception {
+        mockMvc.perform(delete("/api/admin/metrics/failed-auth"))
                 .andExpect(status().isUnauthorized());
     }
 }
